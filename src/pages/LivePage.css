@@ -23,12 +23,13 @@
   gap: 8px;
   font-size: 0.74rem;
   letter-spacing: 0.12em;
-  color: var(--accent-bronze);
+  color: var(--accent-gold);
   margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .carrier-badge-icon {
-  color: var(--accent-bronze-light);
+  color: var(--accent-gold-secondary);
 }
 
 .studio-main-title {
@@ -40,7 +41,7 @@
 
 .studio-sub-desc {
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -55,21 +56,21 @@
 }
 
 .live-stream-status-pill.pill-live {
-  background: rgba(224, 79, 68, 0.1);
-  border: 1px solid rgba(224, 79, 68, 0.3);
-  color: #ff786e;
+  background: var(--status-live-subtle);
+  border: 1px solid rgba(220, 56, 45, 0.4);
+  color: #ff756b;
 }
 
 .live-stream-status-pill.pill-connecting {
-  background: rgba(216, 155, 68, 0.1);
-  border: 1px solid rgba(216, 155, 68, 0.3);
-  color: var(--accent-bronze-light);
+  background: var(--accent-gold-subtle);
+  border: 1px solid var(--border-gold);
+  color: var(--accent-gold-secondary);
 }
 
 .live-stream-status-pill.pill-offline {
-  background: rgba(94, 98, 107, 0.1);
-  border: 1px solid rgba(94, 98, 107, 0.3);
-  color: #9ca3af;
+  background: var(--status-offline-subtle);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
 }
 
 .dot {
@@ -80,17 +81,18 @@
 
 .dot-live {
   background-color: var(--status-live);
-  box-shadow: 0 0 8px var(--status-live-glow);
+  box-shadow: 0 0 8px rgba(220, 56, 45, 0.7);
   animation: pulse-live 2s infinite ease-in-out;
 }
 
 .dot-connecting {
-  background-color: var(--status-amber);
+  background-color: var(--accent-gold);
   animation: pulse-connecting 1s infinite alternate;
 }
 
 .dot-offline {
   background-color: var(--status-offline);
+  opacity: 0.7;
 }
 
 .live-schedule-anchor {

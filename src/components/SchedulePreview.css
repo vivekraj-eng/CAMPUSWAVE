@@ -1,12 +1,12 @@
 .schedule-preview-section {
-  padding: 40px 0 80px;
+  padding: 20px 0 80px;
 }
 
 .section-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 32px;
+  margin-bottom: 30px;
   gap: 20px;
   flex-wrap: wrap;
 }
@@ -15,11 +15,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-mono);
   font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  color: var(--accent-bronze);
+  letter-spacing: 0.14em;
+  color: var(--accent-gold);
   margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .section-title {
@@ -31,30 +31,36 @@
 
 .section-sub {
   font-size: 0.92rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .section-head-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono);
   font-size: 0.8rem;
-  color: var(--accent-bronze-light);
+  color: var(--accent-gold);
   letter-spacing: 0.04em;
-  transition: color var(--transition-fast);
+  transition: all var(--transition-fast);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
 }
 
 .section-head-link:hover {
   color: #fff;
+  border-color: var(--border-gold);
+  background: var(--bg-surface-hover);
+  transform: translateX(2px);
 }
 
 /* Empty state card */
 .schedule-empty-card {
-  padding: 50px 24px;
+  padding: 56px 24px;
   border-radius: var(--radius-md);
-  background: var(--bg-surface);
-  border: 1px dashed var(--border-medium);
+  background: var(--bg-surface-card);
+  border: 1px dashed var(--border-subtle);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -93,20 +99,22 @@
   grid-template-columns: 200px 1fr 140px;
   align-items: center;
   padding: 18px 24px;
-  background: var(--bg-surface);
+  background: var(--bg-surface-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
+  backdrop-filter: blur(8px);
 }
 
 .schedule-row:hover {
-  background: var(--bg-surface-elevated);
+  background: var(--bg-surface-hover);
   border-color: var(--border-medium);
+  transform: translateY(-1px);
 }
 
 .schedule-row.is-live-slot {
-  background: linear-gradient(90deg, rgba(200, 155, 92, 0.08) 0%, rgba(22, 25, 33, 0.95) 100%);
-  border-color: var(--border-accent);
+  background: linear-gradient(90deg, rgba(214, 164, 92, 0.08) 0%, rgba(22, 25, 33, 0.9) 100%);
+  border-color: var(--border-gold);
 }
 
 .time-col {
@@ -125,10 +133,10 @@
 }
 
 .live-tag {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--accent-bronze-light);
+  font-size: 0.64rem;
+  color: var(--accent-gold);
   letter-spacing: 0.08em;
+  font-weight: 600;
 }
 
 .info-col {
@@ -137,7 +145,7 @@
 }
 
 .show-name {
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 2px;
@@ -168,7 +176,7 @@
   height: 6px;
   background-color: var(--status-live);
   border-radius: 50%;
-  box-shadow: 0 0 6px var(--status-live-glow);
+  box-shadow: 0 0 6px rgba(220, 56, 45, 0.6);
 }
 
 .slot-status-upcoming {

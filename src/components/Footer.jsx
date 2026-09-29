@@ -1,23 +1,18 @@
 import React from 'react';
-import { Radio, Wifi } from 'lucide-react';
+import { Wifi, Radio } from 'lucide-react';
+import Logo from './Logo';
 import './Footer.css';
 
-export default function Footer({ onReplayIntro }) {
+export default function Footer() {
   return (
     <footer className="station-footer">
       <div className="container footer-container">
         <div className="footer-top">
           <div className="footer-brand-col">
             <div className="footer-logo-row">
-              <div className="footer-badge-icon">
-                <img
-                  src="/campus-wave-logo.png"
-                  alt="Campus Wave Dinosaur Badge"
-                  className="footer-logo-img"
-                />
-              </div>
+              <Logo size={38} />
               <div className="footer-brand-meta">
-                <span className="footer-title">CAMPUS WAVE</span>
+                <span className="footer-title font-display">CAMPUS WAVE</span>
                 <span className="footer-sub font-mono">104.2 FM • COLLEGE RADIO</span>
               </div>
             </div>
@@ -28,7 +23,7 @@ export default function Footer({ onReplayIntro }) {
           </div>
 
           <div className="footer-links-col">
-            <h4 className="footer-heading font-mono">STATION NAV</h4>
+            <h4 className="footer-heading font-mono">BROADCAST NAV</h4>
             <ul className="footer-list">
               <li><a href="/">Home</a></li>
               <li><a href="/live">Live Radio (Studio Player)</a></li>
@@ -37,30 +32,19 @@ export default function Footer({ onReplayIntro }) {
           </div>
 
           <div className="footer-tech-col">
-            <h4 className="footer-heading font-mono">TRANSMITTER STATUS</h4>
-            <div className="tech-badge">
-              <Wifi size={14} className="tech-icon" />
-              <span>DIGITAL CARRIER • ONLINE</span>
+            <h4 className="footer-heading font-mono">TRANSMITTER CARRIER</h4>
+            <div className="tech-badge font-mono">
+              <Wifi size={13} className="tech-icon" />
+              <span>CARRIER STANDBY • 104.2 FM</span>
             </div>
-            <p className="tech-meta font-mono">FREQUENCY: 104.2 FM STEREO</p>
-            <p className="tech-meta font-mono">CARRIER: LOW POWER CAMPUS RELAY</p>
-
-            {onReplayIntro && (
-              <button
-                type="button"
-                className="replay-ident-btn"
-                onClick={onReplayIntro}
-                aria-label="Replay Station Ident Intro"
-              >
-                Replay Station Ident
-              </button>
-            )}
+            <p className="tech-meta font-mono">STUDIO: CAMPUS MEDIA PAVILION ROOM 104</p>
+            <p className="tech-meta font-mono">TRANSMITTER: LOW-POWER CAMPUS RELAY</p>
           </div>
         </div>
 
         <div className="footer-bottom font-mono">
-          <span>&copy; {new Date().getFullYear()} Campus Wave Student Radio. All student productions preserved.</span>
-          <span>STUDIO: CAMPUS MEDIA PAVILION ROOM 104</span>
+          <span>&copy; {new Date().getFullYear()} Campus Wave Student Radio. Autonomous college broadcast.</span>
+          <span>CAMPUS AUDIO GUILD</span>
         </div>
       </div>
     </footer>

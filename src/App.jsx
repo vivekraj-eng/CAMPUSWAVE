@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import IntroAnimation from './components/IntroAnimation';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -15,21 +14,11 @@ function ScrollToTop() {
 }
 
 export default function App() {
-  const [showIntro, setShowIntro] = useState(true);
-
-  const handleReplayIntro = () => {
-    setShowIntro(true);
-  };
-
   return (
     <BrowserRouter>
       <ScrollToTop />
       <div className="app-container">
-        {showIntro && (
-          <IntroAnimation onComplete={() => setShowIntro(false)} />
-        )}
-
-        <Navbar onReplayIntro={handleReplayIntro} />
+        <Navbar />
 
         <main className="main-content">
           <Routes>
@@ -38,7 +27,7 @@ export default function App() {
           </Routes>
         </main>
 
-        <Footer onReplayIntro={handleReplayIntro} />
+        <Footer />
       </div>
     </BrowserRouter>
   );
