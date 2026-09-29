@@ -1,7 +1,7 @@
 /**
  * Campus Wave Audio Service
  * Reusable singleton audio engine supporting real stream URLs,
- * Web Audio AnalyserNode frequency extraction, and graceful offline state handling.
+ * HTML5 Audio API, and graceful offline state handling.
  */
 
 class AudioService {
@@ -19,49 +19,21 @@ class AudioService {
     this.isPlaying = false;
     this.volume = 0.8;
     this.isMuted = false;
+    this.connectionMessage = this.streamUrl ? 'Connecting to stream' : 'Campus Wave is not currently broadcasting.';
     this.listeners = new Set();
 
-    // Data models (adhering strictly to content rule: no fake production content)
-    this.currentBroadcast = this.streamUrl ? {
-      title: 'The Morning Resonance',
-      host: 'Campus Sound Collective',
-      timeslot: '09:00 - 11:30',
-      description: 'Autonomous student morning broadcast featuring underground indie selections and campus announcements.',
-      frequency: '104.2 FM / Digital Stream'
-    } : null;
-
-    this.trackMetadata = null; // Strictly null if stream does not provide ICY metadata
-
-    this.upNextBroadcast = {
-      title: 'Acoustic Waves & Dialogue',
-      host: 'Student Union Media Team',
-      startTime: '12:00',
-      endTime: '14:00'
+    // Data-driven models (Strict Content Rule: never invent fake songs, fake hosts or fake schedules)
+    // If real metadata exists, use it; otherwise provide authentic standard broadcast labels
+    this.currentBroadcast = {
+      title: 'STUDIO BROADCAST',
+      sub: 'Campus Wave radio stream',
+      host: null,
+      track: null
     };
 
-    this.todaysSchedule = [
-      {
-        id: 'slot-1',
-        title: 'The Morning Resonance',
-        host: 'Campus Sound Collective',
-        time: '09:00 - 11:30',
-        active: Boolean(this.streamUrl)
-      },
-      {
-        id: 'slot-2',
-        title: 'Acoustic Waves & Dialogue',
-        host: 'Student Union Media Team',
-        time: '12:00 - 14:00',
-        active: false
-      },
-      {
-        id: 'slot-3',
-        title: 'Sub-Bass Architecture',
-        host: 'Electronic Music Guild',
-        time: '18:00 - 20:00',
-        active: false
-      }
-    ];
+    this.trackMetadata = null; // null if no real track metadata emitted
+    this.upNextBroadcast = null; // null if no backend schedule exists (omitted from UI)
+    this.todaysSchedule = []; // empty if no backend schedule exists (omitted from UI)
 
     if (this.streamUrl) {
       this.initAudioElement();
@@ -71,31 +43,46 @@ class AudioService {
   initAudioElement() {
     if (this.audioElement) return;
 
-    this.audioElement = new Audio();
-    this.audioElement.crossOrigin = 'anonymous';
-    this.audioElement.preload = 'none';
+    try {
+      this.audioElement = new Audio();
+      this.audioElement.crossOrigin = 'anonymous';
+      this.audioElement.preload = 'none';
 
-    this.audioElement.addEventListener('waiting', () => {
-      this.state = 'connecting';
-      this.notify();
-    });
+      this.audioElement.addEventListener('waiting', () => {
+        this.state = 'connecting';
+        this.connectionMessage = 'Buffering stream carrier...';
+        this.notify();
+      });
 
-    this.audioElement.addEventListener('playing', () => {
-      this.state = 'live';
-      this.isPlaying = true;
-      this.notify();
-    });
+      this.audioElement.addEventListener('playing', () => {
+        this.state = 'live';
+        this.isPlaying = true;
+        this.connectionMessage = 'Connected • Broadcasting live';
+        this.notify();
+      });
 
-    this.audioElement.addEventListener('pause', () => {
-      this.isPlaying = false;
-      this.notify();
-    });
+      this.audioElement.addEventListener('pause', () => {
+        this.isPlaying = false;
+        this.notify();
+      });
 
-    this.audioElement.addEventListener('error', () => {
+      this.audioElement.addEventListener('ended', () => {
+        this.isPlaying = false;
+        this.state = 'offline';
+        this.connectionMessage = 'Stream transmission ended.';
+        this.notify();
+      });
+
+      this.audioElement.addEventListener('error', (e) => {
+        this.state = 'offline';
+        this.isPlaying = false;
+        this.connectionMessage = 'Stream temporarily unavailable.';
+        this.notify();
+      });
+    } catch (err) {
       this.state = 'offline';
       this.isPlaying = false;
-      this.notify();
-    });
+    }
   }
 
   initWebAudio() {
@@ -118,17 +105,21 @@ class AudioService {
         this.analyser.connect(this.audioContext.destination);
       }
     } catch {
-      // Browser cross-origin or autoplay restriction fallback
+      // AudioContext policy or cross-origin fallback
     }
   }
 
   play() {
-    if (!this.streamUrl && this.state === 'offline') {
-      // Graceful offline feedback
+    // If no stream URL configured, gracefully remain offline
+    if (!this.streamUrl) {
+      this.state = 'offline';
+      this.isPlaying = false;
+      this.connectionMessage = 'Campus Wave is not currently broadcasting.';
+      this.notify();
       return;
     }
 
-    if (!this.audioElement && this.streamUrl) {
+    if (!this.audioElement) {
       this.initAudioElement();
     }
 
@@ -139,17 +130,19 @@ class AudioService {
 
     if (this.audioElement) {
       this.state = 'connecting';
+      this.connectionMessage = 'Connecting to Campus Wave stream...';
       this.notify();
-      this.audioElement.src = this.streamUrl;
+
+      if (this.audioElement.src !== this.streamUrl) {
+        this.audioElement.src = this.streamUrl;
+      }
+
       this.audioElement.play().catch(() => {
         this.state = 'offline';
         this.isPlaying = false;
+        this.connectionMessage = 'Campus Wave is currently between broadcasts.';
         this.notify();
       });
-    } else {
-      // In development / preview mode when testing live state
-      this.isPlaying = true;
-      this.notify();
     }
   }
 
@@ -162,7 +155,10 @@ class AudioService {
   }
 
   togglePlay() {
-    if (this.state === 'offline' && !this.streamUrl) {
+    if (!this.streamUrl && this.state === 'offline') {
+      // If user clicks play when no stream URL exists, gracefully signal offline status
+      this.connectionMessage = 'No live broadcast streaming currently.';
+      this.notify();
       return;
     }
     if (this.isPlaying) {
@@ -191,6 +187,7 @@ class AudioService {
     this.notify();
   }
 
+  // Simulator helper: allows inspecting LIVE, CONNECTING and OFFLINE states in dev
   setSimulatorState(newState) {
     this.state = newState;
     if (newState === 'offline') {
@@ -198,6 +195,13 @@ class AudioService {
       if (this.audioElement) {
         this.audioElement.pause();
       }
+      this.connectionMessage = 'Campus Wave is currently between broadcasts.';
+    } else if (newState === 'connecting') {
+      this.isPlaying = false;
+      this.connectionMessage = 'Connecting to Campus Wave...';
+    } else if (newState === 'live') {
+      this.isPlaying = true;
+      this.connectionMessage = 'Connected • Broadcasting live';
     }
     this.notify();
   }
@@ -226,6 +230,7 @@ class AudioService {
       isPlaying: this.isPlaying,
       volume: this.volume,
       isMuted: this.isMuted,
+      connectionMessage: this.connectionMessage,
       currentBroadcast: this.currentBroadcast,
       trackMetadata: this.trackMetadata,
       upNextBroadcast: this.upNextBroadcast,

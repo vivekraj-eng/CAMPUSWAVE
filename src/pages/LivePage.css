@@ -1,100 +1,63 @@
 .live-page-layout {
-  padding: 36px 0 80px;
+  padding: 44px 0 84px;
 }
 
-.live-studio-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 28px;
-  gap: 20px;
-  flex-wrap: wrap;
+.live-page-container {
+  max-width: 980px;
 }
 
-.live-studio-left {
+.live-broadcast-header {
+  margin-bottom: 32px;
   display: flex;
   flex-direction: column;
-  max-width: 600px;
 }
 
-.studio-carrier-badge {
+.live-header-meta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.74rem;
-  letter-spacing: 0.12em;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  margin-bottom: 10px;
+}
+
+.live-eyebrow {
   color: var(--accent-gold);
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-
-.carrier-badge-icon {
-  color: var(--accent-gold-secondary);
-}
-
-.studio-main-title {
-  font-size: clamp(2rem, 4vw, 2.6rem);
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 6px;
 }
 
-.studio-sub-desc {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.live-stream-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-}
-
-.live-stream-status-pill.pill-live {
-  background: var(--status-live-subtle);
-  border: 1px solid rgba(220, 56, 45, 0.4);
-  color: #ff756b;
-}
-
-.live-stream-status-pill.pill-connecting {
-  background: var(--accent-gold-subtle);
-  border: 1px solid var(--border-gold);
-  color: var(--accent-gold-secondary);
-}
-
-.live-stream-status-pill.pill-offline {
-  background: var(--status-offline-subtle);
-  border: 1px solid var(--border-subtle);
+.live-meta-divider {
   color: var(--text-muted);
 }
 
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+.live-dial {
+  color: var(--text-secondary);
 }
 
-.dot-live {
-  background-color: var(--status-live);
-  box-shadow: 0 0 8px rgba(220, 56, 45, 0.7);
-  animation: pulse-live 2s infinite ease-in-out;
+.live-headline {
+  font-size: clamp(2.2rem, 4.4vw, 3.2rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin-bottom: 12px;
 }
 
-.dot-connecting {
-  background-color: var(--accent-gold);
-  animation: pulse-connecting 1s infinite alternate;
+.live-subtext {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 620px;
 }
 
-.dot-offline {
-  background-color: var(--status-offline);
-  opacity: 0.7;
-}
-
-.live-schedule-anchor {
-  margin-top: 40px;
+@media (max-width: 640px) {
+  .live-page-layout {
+    padding: 28px 0 60px;
+  }
+  .live-headline {
+    font-size: 2.1rem;
+  }
+  .live-subtext {
+    font-size: 0.95rem;
+  }
 }

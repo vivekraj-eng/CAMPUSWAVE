@@ -1,56 +1,41 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Radio } from 'lucide-react';
 import LivePlayer from '../components/LivePlayer';
-import SchedulePreview from '../components/SchedulePreview';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import './LivePage.css';
 
 export default function LivePage() {
   const { state } = useAudioPlayer();
+  const isLive = state === 'live';
+  const isConnecting = state === 'connecting';
 
   return (
     <div className="live-page-layout">
       <div className="container live-page-container">
-        {/* Top Channel Identity */}
-        <div className="live-studio-header">
-          <div className="live-studio-left">
-            <div className="studio-carrier-badge font-mono">
-              <Radio size={14} className="carrier-badge-icon" />
-              <span>104.2 FM • DIGITAL BROADCAST TRANSMITTER</span>
-            </div>
-            <h1 className="studio-main-title font-display">Campus Wave Studio</h1>
-            <p className="studio-sub-desc">
-              Dedicated student transmission hub. Streaming live campus discourse, eclectic audio sets, and college frequencies.
-            </p>
+        {/* Broadcast Studio Header */}
+        <motion.div
+          className="live-broadcast-header"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="live-header-meta font-mono">
+            <span className="live-eyebrow">LIVE RADIO</span>
+            <span className="live-meta-divider">•</span>
+            <span className="live-dial">104.2 FM • CAMPUS WAVE</span>
           </div>
 
-          <div className="live-studio-right font-mono">
-            {state === 'live' ? (
-              <div className="live-stream-status-pill pill-live">
-                <span className="dot dot-live" />
-                <span>CONNECTED • LIVE FEED</span>
-              </div>
-            ) : state === 'connecting' ? (
-              <div className="live-stream-status-pill pill-connecting">
-                <span className="dot dot-connecting" />
-                <span>TUNING IN...</span>
-              </div>
-            ) : (
-              <div className="live-stream-status-pill pill-offline">
-                <span className="dot dot-offline" />
-                <span>CARRIER STANDBY • OFFLINE</span>
-              </div>
-            )}
-          </div>
-        </div>
+          <h1 className="live-headline font-display">Your campus, on air.</h1>
 
-        {/* Central Live Radio Experience */}
+          <p className="live-subtext">
+            Autonomous college broadcasting streamed live from the campus studio pavilion.
+            Music, conversations, and live campus frequencies.
+          </p>
+        </motion.div>
+
+        {/* Central Broadcast Console Player */}
         <LivePlayer />
-
-        {/* Transmission Schedule Timeline */}
-        <div className="live-schedule-anchor" id="schedule">
-          <SchedulePreview />
-        </div>
       </div>
     </div>
   );
