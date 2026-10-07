@@ -1,0 +1,132 @@
+.team-page-layout {
+  padding: 44px 0 84px;
+}
+
+.team-container {
+  max-width: 1200px;
+}
+
+.team-hero-header {
+  text-align: center;
+  max-width: 780px;
+  margin: 0 auto 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-blue, #4D8DFF);
+  background: rgba(77, 141, 255, 0.08);
+  border: 1px solid rgba(77, 141, 255, 0.25);
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.team-main-title {
+  font-size: clamp(2.4rem, 5vw, 3.2rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+.team-main-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary, #94A3B8);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.team-hero-radio-accent {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 440px;
+}
+
+.team-hero-radio-accent .accent-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(77, 141, 255, 0.4), transparent);
+}
+
+.team-hero-radio-accent .accent-frequency {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-purple, #A78BFA);
+  font-weight: 600;
+}
+
+/* Group Sections */
+.team-groups-container {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.team-group-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.group-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+}
+
+.group-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-blue, #4D8DFF);
+  box-shadow: 0 0 8px rgba(77, 141, 255, 0.6);
+}
+
+.group-count {
+  font-size: 0.72rem;
+  color: var(--text-muted, #75809E);
+  letter-spacing: 0.05em;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+@media (max-width: 768px) {
+  .team-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+}

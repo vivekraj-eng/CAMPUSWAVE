@@ -1,0 +1,310 @@
+/* CampusWave Brand Logo Styling */
+
+/* Common Container Transitions & Base */
+.cw-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  user-select: none;
+  transition: transform var(--transition-fast, 160ms cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.cw-brand-logo:hover {
+  transform: scale(1.02);
+}
+
+/* Emblem Container: Official station seal mounting */
+.cw-logo-emblem-frame {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #0B1020;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.cw-brand-logo:hover .cw-logo-emblem-frame {
+  border-color: rgba(139, 92, 246, 0.45);
+  box-shadow: 0 0 16px rgba(77, 141, 255, 0.2), 0 0 24px rgba(139, 92, 246, 0.25), 0 6px 18px rgba(0, 0, 0, 0.65);
+}
+
+/* When station is active or explicitly glowing */
+.cw-logo-emblem-frame.glowing {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 20px rgba(77, 141, 255, 0.25), 0 0 28px rgba(139, 92, 246, 0.3), 0 6px 20px rgba(0, 0, 0, 0.7);
+}
+
+/* Image inside the frame */
+.cw-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 50%;
+  background-color: #FFFFFF; /* Preserves crispness of the authentic circular station mascot */
+  transition: transform 0.25s ease;
+}
+
+/* Subtle ring overlay for authentic enamel pin / badge finish */
+.cw-logo-emblem-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  pointer-events: none;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ========================================================
+   VARIANT: NAVBAR
+   ======================================================== */
+.cw-brand-navbar {
+  gap: 13px;
+}
+
+.cw-brand-navbar .cw-logo-emblem-frame {
+  width: 46px;
+  height: 46px;
+  padding: 2px;
+}
+
+.cw-brand-navbar .cw-wordmark-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1;
+}
+
+.cw-brand-navbar .cw-wordmark-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cw-brand-navbar .cw-wordmark-line1,
+.cw-brand-navbar .cw-wordmark-line2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 0.09em;
+  line-height: 0.95;
+  background: linear-gradient(180deg, #FFFFFF 20%, #E2E8F0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cw-brand-navbar .cw-wordmark-line2 {
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  background: linear-gradient(180deg, #FFFFFF 0%, #CBD5E1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cw-brand-navbar .cw-metadata-freq {
+  font-family: var(--font-mono);
+  font-size: 0.61rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-purple-bright);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cw-brand-navbar .cw-meta-dot {
+  color: var(--accent-blue-bright);
+  font-size: 0.55rem;
+}
+
+/* ========================================================
+   VARIANT: HERO
+   ======================================================== */
+.cw-brand-hero {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cw-brand-hero .cw-logo-emblem-frame {
+  width: 172px;
+  height: 172px;
+  padding: 4px;
+  border-width: 2px;
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 30px rgba(77, 141, 255, 0.15);
+}
+
+.cw-brand-hero:hover .cw-logo-emblem-frame {
+  border-color: rgba(139, 92, 246, 0.6);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.85), 0 0 38px rgba(139, 92, 246, 0.35);
+}
+
+.cw-brand-hero .cw-hero-radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed rgba(139, 92, 246, 0.25);
+  pointer-events: none;
+  animation: cw-radar-rotate 35s linear infinite;
+}
+
+.cw-brand-hero .cw-hero-ring-1 {
+  width: 210px;
+  height: 210px;
+}
+
+.cw-brand-hero .cw-hero-ring-2 {
+  width: 248px;
+  height: 248px;
+  border-style: dotted;
+  border-color: rgba(77, 141, 255, 0.2);
+  animation-duration: 45s;
+  animation-direction: reverse;
+}
+
+.cw-brand-hero .cw-hero-signal-marker {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-live);
+  box-shadow: 0 0 10px var(--status-live);
+  z-index: 2;
+}
+
+@keyframes cw-radar-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================================
+   VARIANT: FOOTER
+   ======================================================== */
+.cw-brand-footer {
+  gap: 14px;
+}
+
+.cw-brand-footer .cw-logo-emblem-frame {
+  width: 48px;
+  height: 48px;
+  padding: 2px;
+}
+
+.cw-brand-footer .cw-wordmark-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.cw-brand-footer .cw-wordmark-line1,
+.cw-brand-footer .cw-wordmark-line2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  line-height: 0.95;
+  color: #FFFFFF;
+}
+
+.cw-brand-footer .cw-wordmark-line2 {
+  font-size: 1.1rem;
+}
+
+.cw-brand-footer .cw-metadata-freq {
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent-purple-bright);
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ========================================================
+   VARIANT: COMPACT (ICON ONLY / SEAL)
+   ======================================================== */
+.cw-brand-compact .cw-logo-emblem-frame {
+  width: 38px;
+  height: 38px;
+  padding: 1.5px;
+}
+
+/* ========================================================
+   VARIANT: INTRO (STARTUP LOGO)
+   ======================================================== */
+.cw-brand-intro .cw-logo-emblem-frame {
+  width: 130px;
+  height: 130px;
+  padding: 3px;
+  border-width: 2px;
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.8), 0 0 30px rgba(139, 92, 246, 0.25);
+}
+
+/* ========================================================
+   RESPONSIVE DESIGN (375px, 768px, 1024px)
+   ======================================================== */
+@media (max-width: 900px) {
+  .cw-brand-navbar .cw-metadata-freq {
+    display: none; /* Hide secondary frequency on tablet / small laptop to prevent crowding */
+  }
+
+  .cw-brand-navbar .cw-wordmark-line1,
+  .cw-brand-navbar .cw-wordmark-line2 {
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .cw-brand-navbar {
+    gap: 10px;
+  }
+
+  .cw-brand-navbar .cw-logo-emblem-frame {
+    width: 38px;
+    height: 38px;
+  }
+
+  /* Single-line or compact 2-line for mobile navbar so it never crowds */
+  .cw-brand-navbar .cw-wordmark-line1,
+  .cw-brand-navbar .cw-wordmark-line2 {
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+  }
+
+  .cw-brand-hero .cw-logo-emblem-frame {
+    width: 140px;
+    height: 140px;
+  }
+
+  .cw-brand-hero .cw-hero-ring-1 {
+    width: 172px;
+    height: 172px;
+  }
+
+  .cw-brand-hero .cw-hero-ring-2 {
+    width: 202px;
+    height: 202px;
+  }
+}
+
+/* Accessibility: respect user prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .cw-brand-logo,
+  .cw-logo-emblem-frame,
+  .cw-brand-hero .cw-hero-radar-ring {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}

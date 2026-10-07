@@ -1,35 +1,64 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Logo from './Logo';
+import BrandLogo from './BrandLogo';
 import RadioWave from './RadioWave';
 import './IntroAnimation.css';
 
+/**
+ * CampusWave Station Intro / Logo Startup Animation
+ * 
+ * Cinematic 2.2-second startup ident:
+ * 1. Deep navy/black atmosphere (#060811).
+ * 2. Authentic dinosaur-with-headphones mascot emblem emerges with pristine aspect ratio.
+ * 3. Subtle radio-wave rings radiate from the emblem.
+ * 4. Emblem settles into resting anchor.
+ * 5. "CAMPUSWAVE" typography resolves crisply.
+ * 6. "Your Campus. Your Voice." subtitle gently fades in.
+ * 7. Cinematic fade-out transition into the station experience.
+ */
 export default function IntroAnimation({ onComplete }) {
-  const [stage, setStage] = useState(0); // 0: dark, 1: logo + waves, 2: typography, 3: exit
+  // Stages:
+  // 0: Initial void (0 - 150ms)
+  // 1: Logo appears + subtle radio wave (150ms)
+  // 2: Logo settles + "CAMPUSWAVE" appears (750ms)
+  // 3: "Your Campus. Your Voice." appears (1200ms)
+  // 4: Smooth transition out (1800ms)
+  // 5: Finished / unmount (2200ms)
+  const [stage, setStage] = useState(0);
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    // Respect prefers-reduced-motion
+    // Respect user's prefers-reduced-motion system setting
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
       onComplete();
       return;
     }
 
-    const t1 = setTimeout(() => setStage(1), 250);
-    const t2 = setTimeout(() => setStage(2), 1400);
-    const t3 = setTimeout(() => setStage(3), 3200);
-    const t4 = setTimeout(() => onComplete(), 3800);
+    const t1 = setTimeout(() => setStage(1), 150);
+    const t2 = setTimeout(() => setStage(2), 750);
+    const t3 = setTimeout(() => setStage(3), 1200);
+    const t4 = setTimeout(() => setStage(4), 1800);
+    const t5 = setTimeout(() => onComplete(), 2200);
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') {
+        onComplete();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
       clearTimeout(t4);
+      clearTimeout(t5);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [onComplete]);
 
-  // Subtle acoustic particle drift
+  // Subtle radio atmospheric dust drift in station purple & blue
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -43,12 +72,13 @@ export default function IntroAnimation({ onComplete }) {
     resize();
     window.addEventListener('resize', resize);
 
-    const particles = Array.from({ length: 30 }, () => ({
+    const particles = Array.from({ length: 24 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      radius: Math.random() * 1.1 + 0.3,
-      alpha: Math.random() * 0.35 + 0.1,
-      speedY: -(Math.random() * 0.35 + 0.1)
+      radius: Math.random() * 1.2 + 0.4,
+      alpha: Math.random() * 0.25 + 0.08,
+      speedY: -(Math.random() * 0.3 + 0.1),
+      isPurple: Math.random() > 0.5
     }));
 
     const render = () => {
@@ -58,7 +88,9 @@ export default function IntroAnimation({ onComplete }) {
         if (p.y < 0) p.y = canvas.height;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 155, 92, ${p.alpha * 0.4})`;
+        ctx.fillStyle = p.isPurple
+          ? `rgba(167, 139, 250, ${p.alpha})`
+          : `rgba(112, 165, 255, ${p.alpha})`;
         ctx.fill();
       });
       animId = requestAnimationFrame(render);
@@ -67,65 +99,82 @@ export default function IntroAnimation({ onComplete }) {
 
     return () => {
       window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animId);
+      if (animId) cancelAnimationFrame(animId);
     };
   }, []);
 
   return (
     <AnimatePresence>
-      {stage < 4 && (
+      {stage < 5 && (
         <motion.div
           className="intro-animation-backdrop"
           initial={{ opacity: 1 }}
-          animate={{ opacity: stage === 3 ? 0 : 1 }}
+          animate={{ opacity: stage === 4 ? 0 : 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           role="dialog"
-          aria-label="Campus Wave Station Ident Intro"
+          aria-label="CampusWave Station Ident"
         >
-          <canvas ref={canvasRef} className="intro-particle-canvas" />
+          <canvas ref={canvasRef} className="intro-particle-canvas" aria-hidden="true" />
+
+          {/* Atmospheric background radio frequency ring overlay */}
+          <div className="intro-carrier-ring ring-outer" aria-hidden="true" />
+          <div className="intro-carrier-ring ring-inner" aria-hidden="true" />
 
           <div className="intro-core">
-            {/* Logo with restrained scale & depth motion */}
+            {/* Logo Emblem Stage with Restrained Scale & Radio Wave Pulse */}
             <div className="intro-logo-relative">
               {stage >= 1 && (
-                <RadioWave isPlaying={true} size={320} className="intro-radio-wave" />
+                <RadioWave isPlaying={true} size={280} className="intro-radio-wave" />
               )}
               <motion.div
-                initial={{ opacity: 0, scale: 0.88, filter: 'blur(6px)' }}
+                initial={{ opacity: 0, scale: 0.92, filter: 'blur(4px)' }}
                 animate={{
                   opacity: stage >= 1 ? 1 : 0,
-                  scale: stage >= 1 ? 1 : 0.88,
-                  filter: stage >= 1 ? 'blur(0px)' : 'blur(6px)'
+                  scale: stage >= 1 ? 1 : 0.92,
+                  filter: stage >= 1 ? 'blur(0px)' : 'blur(4px)'
                 }}
-                transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               >
-                <Logo size={140} showGlow={stage >= 1} />
+                <BrandLogo variant="intro" size={130} showGlow={stage >= 1} />
               </motion.div>
             </div>
 
-            {/* Typography */}
-            <motion.div
-              className="intro-text-group"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{
-                opacity: stage >= 2 ? 1 : 0,
-                y: stage >= 2 ? 0 : 14
-              }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <h1 className="intro-brand-name font-display">CAMPUS WAVE</h1>
-              <p className="intro-subtitle font-mono">RADIO • VOICES • COMMUNITY</p>
-            </motion.div>
+            {/* Station Typography Hierarchy */}
+            <div className="intro-text-group">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{
+                  opacity: stage >= 2 ? 1 : 0,
+                  y: stage >= 2 ? 0 : 10
+                }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <h1 className="intro-brand-name font-display">CAMPUSWAVE</h1>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{
+                  opacity: stage >= 3 ? 1 : 0,
+                  y: stage >= 3 ? 0 : 6
+                }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <p className="intro-subtitle font-display">Your Campus. Your Voice.</p>
+                <div className="intro-frequency-tag font-mono">104.2 FM • COLLEGE RADIO</div>
+              </motion.div>
+            </div>
           </div>
 
           <button
             type="button"
             className="intro-skip-button font-mono"
             onClick={onComplete}
-            aria-label="Skip Station Ident"
+            aria-label="Skip Station Intro"
           >
-            SKIP IDENT
+            <span>SKIP</span>
+            <span className="skip-shortcut">ESC</span>
           </button>
         </motion.div>
       )}

@@ -1,0 +1,222 @@
+.join-page-layout {
+  padding: 44px 0 80px;
+}
+
+.join-container {
+  max-width: 1200px;
+}
+
+.join-auth-strip {
+  margin-bottom: 24px;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.78rem;
+  padding: 10px 16px;
+  background: rgba(14, 20, 36, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.join-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.join-form-card {
+  padding: 36px 32px;
+  background: rgba(8, 11, 20, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 12px);
+}
+
+.join-card-header {
+  margin-bottom: 24px;
+}
+
+.card-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-blue, #4D8DFF);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+
+.card-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary, #94A3B8);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Sidebar */
+.join-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.join-perks-card {
+  padding: 26px 22px;
+  background: rgba(11, 16, 32, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 12px);
+}
+
+.perks-heading {
+  font-size: 1.2rem;
+  color: #FFFFFF;
+  margin-bottom: 2px;
+}
+
+.perks-sub {
+  font-size: 0.72rem;
+  color: var(--accent-purple, #A78BFA);
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+}
+
+.perks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.perk-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.perk-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs, 6px);
+  background: rgba(77, 141, 255, 0.1);
+  border: 1px solid rgba(77, 141, 255, 0.25);
+  color: var(--accent-blue, #4D8DFF);
+  flex-shrink: 0;
+}
+
+.perk-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 3px;
+}
+
+.perk-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #94A3B8);
+  line-height: 1.45;
+}
+
+.recruitment-timeline {
+  background: rgba(6, 8, 17, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm, 6px);
+  padding: 16px;
+}
+
+.timeline-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.timeline-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timeline-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.76rem;
+  color: var(--text-secondary, #94A3B8);
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: var(--accent-purple, #A78BFA);
+  font-weight: 700;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.join-studio-card {
+  padding: 20px;
+  background: rgba(11, 16, 32, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md, 12px);
+}
+
+.studio-card-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-blue, #4D8DFF);
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.studio-card-loc {
+  font-size: 0.82rem;
+  color: #FFFFFF;
+  margin: 0 0 4px;
+}
+
+.studio-card-hours {
+  font-size: 0.74rem;
+  color: var(--text-muted, #75809E);
+  margin: 0 0 12px;
+}
+
+.studio-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-purple, #A78BFA);
+  font-size: 0.74rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.studio-contact-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 980px) {
+  .join-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .join-form-card {
+    padding: 22px 16px;
+  }
+}

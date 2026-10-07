@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from './Logo';
+import BrandLogo from './BrandLogo';
 import './LoadingState.css';
 
 export default function LoadingState({ message = 'Connecting to Campus Wave stream...' }) {
@@ -12,7 +12,7 @@ export default function LoadingState({ message = 'Connecting to Campus Wave stre
 
       <div className="loading-spinner-wrapper">
         <div className="loading-spinner-ring" />
-        <Logo size={90} className="loading-logo" />
+        <BrandLogo variant="compact" size={84} className="loading-logo" />
       </div>
 
       <h2 className="loading-headline font-display">CONNECTING TO CAMPUS WAVE</h2>

@@ -1,0 +1,221 @@
+/* PersistentPlayer Styles */
+.persistent-player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(8, 12, 22, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(139, 92, 246, 0.15);
+  padding: 10px 0;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.persistent-player-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.persistent-info-col {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 240px;
+  max-width: 380px;
+}
+
+.persistent-thumb-wrap,
+.persistent-thumb-placeholder {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #101522;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-purple-bright);
+}
+
+.persistent-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.persistent-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.persistent-top-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.65rem;
+}
+
+.persistent-mode-badge {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.persistent-mode-badge.mode-live {
+  background: rgba(239, 83, 80, 0.18);
+  border: 1px solid rgba(239, 83, 80, 0.35);
+  color: #EF5350;
+}
+
+.persistent-mode-badge.mode-podcast {
+  background: rgba(77, 141, 255, 0.15);
+  border: 1px solid rgba(77, 141, 255, 0.3);
+  color: var(--accent-blue-bright);
+}
+
+.persistent-host {
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.persistent-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.persistent-center-col {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  justify-content: center;
+  max-width: 460px;
+}
+
+.persistent-play-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
+}
+
+.persistent-play-btn:hover {
+  transform: scale(1.06);
+  background: var(--accent-gradient-hover);
+}
+
+.persistent-waveform-slot {
+  flex: 1;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+}
+
+.persistent-right-col {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.persistent-vol-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.persistent-mute-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.persistent-mute-btn:hover {
+  color: #FFFFFF;
+}
+
+.persistent-vol-slider {
+  width: 72px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  accent-color: var(--accent-purple-bright);
+  cursor: pointer;
+}
+
+.persistent-view-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-purple-bright);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  transition: all var(--transition-fast);
+}
+
+.persistent-view-link:hover {
+  color: #FFFFFF;
+  background: var(--accent-purple);
+}
+
+.persistent-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: color var(--transition-fast);
+}
+
+.persistent-close-btn:hover {
+  color: #EF5350;
+}
+
+@media (max-width: 860px) {
+  .persistent-waveform-slot,
+  .persistent-vol-wrap {
+    display: none;
+  }
+}

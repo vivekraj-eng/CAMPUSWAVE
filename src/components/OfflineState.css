@@ -15,9 +15,9 @@
   padding: 4px 14px;
   font-size: 0.72rem;
   letter-spacing: 0.1em;
-  color: #9ca3af;
-  background: rgba(94, 98, 107, 0.12);
-  border: 1px solid rgba(94, 98, 107, 0.3);
+  color: #94A3B8;
+  background: var(--status-offline-subtle);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
   margin-bottom: 24px;
 }
@@ -34,7 +34,7 @@
 }
 
 .offline-logo-muted {
-  filter: grayscale(1) opacity(0.5);
+  filter: grayscale(0.8) opacity(0.5);
 }
 
 .offline-headline {
@@ -53,8 +53,8 @@
 
 .offline-upnext-banner {
   width: 100%;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-accent);
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
   padding: 18px 24px;
   margin-bottom: 24px;
@@ -63,7 +63,7 @@
 .upnext-label {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
-  color: var(--accent-bronze);
+  color: var(--accent-purple-bright);
   display: block;
   margin-bottom: 4px;
 }

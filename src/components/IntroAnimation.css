@@ -1,13 +1,17 @@
 .intro-animation-backdrop {
   position: fixed;
   inset: 0;
-  background-color: #07080a;
+  background-color: #060811;
+  background-image: 
+    radial-gradient(circle 600px at 50% 45%, rgba(139, 92, 246, 0.08) 0%, transparent 70%),
+    radial-gradient(circle 800px at 50% 50%, rgba(77, 141, 255, 0.05) 0%, transparent 60%);
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   overflow: hidden;
+  user-select: none;
 }
 
 .intro-particle-canvas {
@@ -16,6 +20,29 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+/* Subtle background carrier rings */
+.intro-carrier-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+}
+
+.ring-outer {
+  width: 540px;
+  height: 540px;
+}
+
+.ring-inner {
+  width: 380px;
+  height: 380px;
+  border-style: dotted;
+  border-color: rgba(139, 92, 246, 0.08);
 }
 
 .intro-core {
@@ -33,7 +60,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .intro-radio-wave {
@@ -50,47 +77,93 @@
 }
 
 .intro-brand-name {
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
+  font-size: clamp(2rem, 4.5vw, 2.8rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
 }
 
 .intro-subtitle {
-  font-size: 0.82rem;
-  letter-spacing: 0.22em;
-  color: var(--accent-bronze-light);
-  text-transform: uppercase;
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  font-weight: 600;
+  background: linear-gradient(135deg, #70A5FF 0%, #C084FC 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.intro-frequency-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--accent-purple-bright, #A78BFA);
+  opacity: 0.85;
 }
 
 .intro-skip-button {
   position: absolute;
-  bottom: 32px;
-  right: 32px;
-  padding: 8px 16px;
+  bottom: 28px;
+  right: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
   font-size: 0.72rem;
+  font-weight: 600;
   letter-spacing: 0.1em;
-  color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  background: rgba(16, 18, 23, 0.6);
-  backdrop-filter: blur(8px);
+  color: var(--text-muted, #687184);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-sm, 8px);
+  background: rgba(16, 21, 34, 0.65);
+  backdrop-filter: blur(10px);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast, 160ms ease);
   z-index: 10;
 }
 
 .intro-skip-button:hover {
-  color: var(--text-primary);
-  border-color: var(--border-medium);
-  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  border-color: var(--accent-purple, #8B5CF6);
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.intro-skip-button:focus-visible {
+  outline: 2px solid var(--accent-purple-bright);
+  outline-offset: 2px;
+}
+
+.skip-shortcut {
+  font-size: 0.6rem;
+  padding: 1px 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 640px) {
   .intro-skip-button {
     bottom: 20px;
     right: 20px;
+    padding: 5px 12px;
+  }
+  .ring-outer {
+    width: 360px;
+    height: 360px;
+  }
+  .ring-inner {
+    width: 260px;
+    height: 260px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-animation-backdrop,
+  .intro-carrier-ring,
+  .intro-particle-canvas {
+    animation: none !important;
+    transition: none !important;
   }
 }

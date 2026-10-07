@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Calendar, Radio, Activity, Cpu } from 'lucide-react';
+import { Play, Calendar, Radio, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
-import Logo from './Logo';
+import BrandLogo from './BrandLogo';
 import RadioWave from './RadioWave';
 import Waveform from './Waveform';
 import './Hero.css';
@@ -16,7 +16,7 @@ export default function Hero() {
   return (
     <section className="hero-section">
       <div className="container hero-container">
-        {/* Left Column: Editorial Radio Masthead & Actions */}
+        {/* Left Column: Radio Masthead & Action Controls */}
         <motion.div
           className="hero-content"
           initial={{ opacity: 0, y: 16 }}
@@ -31,31 +31,29 @@ export default function Hero() {
 
           {/* Station Masthead */}
           <h1 className="hero-masthead font-display">
-            CAMPUS WAVE
-            <span className="hero-subhead">Radio Beyond the Frequency</span>
+            CAMPUSWAVE
+            <span className="hero-subhead">Your Campus. Your Voice.</span>
           </h1>
 
-          {/* Station Manifesto */}
+          {/* Platform Explanation */}
           <p className="hero-manifesto">
-            Real voices. Campus stories.
-            <br />
-            Music, conversations and moments.
+            The official student-curated broadcast network of our college. Real student voices, indie soundscapes, live studio debates, campus announcements, and exclusive podcasts.
           </p>
 
           {/* Action CTAs */}
           <div className="hero-actions font-mono">
-            <Link to="/live" className="btn-primary" aria-label="Listen Live to Campus Wave">
-              <Play size={14} fill="currentColor" />
+            <Link to="/live" className="btn-primary" aria-label="Listen Live to CampusWave">
+              <Play size={15} fill="currentColor" />
               <span>LISTEN LIVE</span>
             </Link>
 
-            <a href="#schedule" className="btn-secondary" aria-label="Explore Broadcast Shows">
-              <Calendar size={14} />
+            <Link to="/shows" className="btn-secondary" aria-label="Explore Broadcast Shows">
+              <Calendar size={15} />
               <span>EXPLORE SHOWS</span>
-            </a>
+            </Link>
           </div>
 
-          {/* Refined Radio Status Panel */}
+          {/* Studio Broadcast Indicator Panel */}
           <div className="hero-status-panel">
             <div className="status-panel-top">
               <div className="status-indicator-tag">
@@ -64,23 +62,23 @@ export default function Hero() {
                   {isLive ? 'TRANSMITTING LIVE' : 'STUDIO STANDBY'}
                 </span>
               </div>
-              <span className="status-dial font-mono">104.2 FM • DIGITAL STREAM</span>
+              <span className="status-dial font-mono">104.2 FM • DIGITAL STEREO</span>
             </div>
 
             <div className="status-panel-body">
               <h3 className="status-program-title font-display">
-                {isLive && currentBroadcast ? currentBroadcast.title : 'Campus Wave Studio Standby'}
+                {isLive && currentBroadcast ? currentBroadcast.title : 'CampusWave Studio Standby'}
               </h3>
               <p className="status-program-desc">
-                {isLive && currentBroadcast
-                  ? `With ${currentBroadcast.host} • Timeslot: ${currentBroadcast.timeslot}`
-                  : 'The station is currently offline. Check back during the next scheduled broadcast.'}
+                {isLive && currentBroadcast?.host
+                  ? `Presented by ${currentBroadcast.host}`
+                  : 'Broadcast feed is on standby. Browse upcoming shows, recorded podcasts, or tune into the live studio.'}
               </p>
             </div>
           </div>
         </motion.div>
 
-        {/* Right Column: Radio Transmission Panel (Equipment-Inspired) */}
+        {/* Right Column: Hardware Broadcast Rack with Dinosaur Emblem */}
         <motion.div
           className="hero-transmission-column"
           initial={{ opacity: 0, scale: 0.96 }}
@@ -88,7 +86,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="transmission-panel-rack">
-            {/* Rack Mounting Screws (Tactile Hardware Aesthetic) */}
+            {/* Rack Mounting Screws */}
             <div className="rack-corner rack-tl" />
             <div className="rack-corner rack-tr" />
             <div className="rack-corner rack-bl" />
@@ -97,7 +95,7 @@ export default function Hero() {
             {/* Equipment Top Bar */}
             <div className="panel-equipment-header font-mono">
               <div className="equipment-tag">
-                <Radio size={12} className="tag-icon" />
+                <Radio size={13} className="tag-icon" />
                 <span>UNIT CW-104</span>
               </div>
               <div className="carrier-frequency">
@@ -106,18 +104,18 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Center Dinosaur Mascot Emblem with Acoustic Waves */}
+            {/* Center Mascot Emblem with Glowing Acoustic Waves */}
             <div className="transmission-visual-stage">
               <div className="transmission-waves-halo">
                 <RadioWave isPlaying={isPlaying} size={340} />
               </div>
 
               <div className="transmission-mascot-anchor">
-                <Logo size={170} showGlow={isPlaying} className="transmission-dinosaur-logo" />
+                <BrandLogo variant="hero" size={170} showGlow={isPlaying} className="transmission-dinosaur-logo" />
               </div>
             </div>
 
-            {/* Sub-Panel: Live / Resting Audio Spectrum */}
+            {/* Acoustic Spectrum Canvas */}
             <div className="transmission-spectrum-card">
               <div className="spectrum-card-header font-mono">
                 <div className="spectrum-monitor-label">
@@ -138,7 +136,7 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Equipment Bottom Metadata Labels */}
+            {/* Equipment Hardware Specifications */}
             <div className="panel-equipment-footer font-mono">
               <div className="footer-meta-item">
                 <span className="meta-key">TRANSMITTER</span>

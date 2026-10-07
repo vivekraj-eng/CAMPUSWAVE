@@ -1,0 +1,847 @@
+/* ==========================================================================
+   CampusWave — RJ Workspace Styles (Phase 8)
+   Radio Jockey On-Air Console & Programming Workspace
+   ========================================================================== */
+
+.rj-workspace-page {
+  padding: 32px 0 100px;
+  min-height: calc(100vh - 80px);
+}
+
+.rj-workspace-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  position: relative;
+}
+
+/* ==========================================================================
+   Desktop Left Sidebar
+   ========================================================================== */
+.rj-sidebar {
+  width: 270px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-booth-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-cyan);
+}
+
+.sidebar-booth-tag .tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+
+.pending-pulse {
+  background: rgba(245, 158, 11, 0.25) !important;
+  color: #FCD34D !important;
+  border: 1px solid rgba(245, 158, 11, 0.5) !important;
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ==========================================================================
+   Main Workspace Area
+   ========================================================================== */
+.rj-main-area {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.rj-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px 36px;
+  position: relative;
+  overflow: hidden;
+  gap: 24px;
+}
+
+.rj-banner-ambient-glow {
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.rj-banner-content {
+  position: relative;
+  z-index: 1;
+}
+
+.rj-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent-purple-bright);
+  margin-bottom: 6px;
+}
+
+.rj-heading {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.rj-subtext {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.rj-status-badge-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.rj-on-air-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: rgba(14, 21, 37, 0.85);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.rj-on-air-pill .live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+/* ==========================================================================
+   Filter Pills Bar
+   ========================================================================== */
+.rj-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 5px 11px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(14, 21, 37, 0.8);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.filter-btn:hover {
+  color: #FFFFFF;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.filter-btn.active {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: var(--accent-purple-bright);
+  color: #FFFFFF;
+}
+
+.rj-action-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  margin-bottom: 14px;
+}
+
+.rj-action-alert.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #F87171;
+}
+
+/* ==========================================================================
+   Queue Rows & Moderation Buttons
+   ========================================================================== */
+.rj-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rj-queue-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 20px;
+  background: rgba(14, 21, 37, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.rj-queue-row:hover {
+  background: rgba(14, 21, 37, 0.85);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.queue-main-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.queue-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.queue-item-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.queue-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.queue-artist {
+  color: var(--accent-blue-bright);
+  font-weight: 600;
+}
+
+.queue-listener {
+  color: var(--text-secondary);
+}
+
+.queue-listener-email {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.queue-annotation {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-xs);
+  font-size: 0.74rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-left: 2px solid var(--accent-purple);
+  color: var(--text-secondary);
+}
+
+.queue-annotation span {
+  color: var(--accent-purple-bright);
+  font-weight: 700;
+}
+
+.queue-annotation.dedication span {
+  color: var(--accent-cyan);
+}
+
+.shoutout-recipient-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.rj-shoutout-quote {
+  margin: 6px 0 8px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #FFFFFF;
+  font-style: italic;
+}
+
+.queue-actions-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-rj-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--radius-xs);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-rj-action.approve {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34D399;
+}
+
+.btn-rj-action.approve:hover {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+.btn-rj-action.play {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: var(--accent-blue-bright);
+}
+
+.btn-rj-action.play:hover {
+  background: var(--accent-blue);
+  color: #FFFFFF;
+}
+
+.btn-rj-action.reject {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #F87171;
+}
+
+.btn-rj-action.reject:hover {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.queue-status-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: #34D399;
+}
+
+/* ==========================================================================
+   Assigned Shows Grid
+   ========================================================================== */
+.rj-shows-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.rj-show-item {
+  background: rgba(14, 21, 37, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rj-show-cover-box {
+  height: 140px;
+  background: rgba(8, 12, 22, 0.8);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.rj-show-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rj-show-placeholder-art {
+  color: var(--accent-purple-bright);
+  opacity: 0.7;
+}
+
+.rj-show-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(8, 12, 22, 0.85);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.rj-show-details {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.rj-show-top-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.rj-show-category, .rj-show-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rj-show-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.rj-show-tagline {
+  font-size: 0.78rem;
+  color: var(--accent-purple-bright);
+  margin-bottom: 8px;
+}
+
+.rj-show-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.rj-show-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ==========================================================================
+   Assigned Schedule List
+   ========================================================================== */
+.rj-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rj-schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 18px;
+  background: rgba(14, 21, 37, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  flex-wrap: wrap;
+}
+
+.schedule-day-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-purple-bright);
+  min-width: 90px;
+}
+
+.schedule-time-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--accent-cyan);
+  min-width: 140px;
+}
+
+.schedule-show-info {
+  flex: 1;
+  min-width: 180px;
+}
+
+.schedule-show-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.schedule-host-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.schedule-badge-col {
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Podcasts Manager
+   ========================================================================== */
+.rj-podcasts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rj-podcast-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 20px;
+  background: rgba(14, 21, 37, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.pod-lead-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: var(--accent-purple-bright);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pod-content-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.pod-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 2px;
+}
+
+.pod-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.pod-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.pod-show-tag {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.pod-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pod-actions-col {
+  flex-shrink: 0;
+}
+
+.btn-delete-icon {
+  color: var(--text-muted);
+  padding: 6px;
+  border-radius: var(--radius-xs);
+  transition: all var(--transition-fast);
+}
+
+.btn-delete-icon:hover {
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* ==========================================================================
+   Studio Shortcuts
+   ========================================================================== */
+.rj-shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.rj-shortcut-tile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(14, 21, 37, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.rj-shortcut-tile:hover {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.35);
+  transform: translateY(-2px);
+}
+
+.rj-shortcut-tile.live-tune {
+  background: rgba(6, 182, 212, 0.08);
+  border-color: rgba(6, 182, 212, 0.25);
+}
+
+.rj-shortcut-tile.live-tune:hover {
+  background: rgba(6, 182, 212, 0.16);
+  border-color: var(--accent-cyan);
+}
+
+.tile-icon-frame {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-xs);
+  background: rgba(139, 92, 246, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-purple-bright);
+  flex-shrink: 0;
+}
+
+.tile-icon-frame.live {
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-cyan);
+}
+
+.tile-text-frame {
+  flex: 1;
+  min-width: 0;
+}
+
+.tile-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.tile-sub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   Modal Dialog
+   ========================================================================== */
+.rj-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.rj-modal-box {
+  width: 100%;
+  max-width: 580px;
+  padding: 32px;
+  background: var(--bg-surface-elevated);
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--border-glow);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.rj-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.rj-modal-heading {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.rj-modal-close {
+  font-size: 1.6rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.rj-modal-close:hover {
+  color: #FFFFFF;
+}
+
+.rj-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-input-help {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: block;
+}
+
+.rj-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+/* ==========================================================================
+   Restricted / Denied Access Screen
+   ========================================================================== */
+.rj-denied-box {
+  max-width: 540px;
+  margin: 60px auto;
+  padding: 48px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rj-denied-icon {
+  color: #EF4444;
+  margin-bottom: 18px;
+}
+
+.rj-denied-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+
+.rj-denied-desc {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.rj-denied-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   Skeleton
+   ========================================================================== */
+.rj-skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rj-skeleton-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .rj-sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .rj-workspace-page {
+    padding: 20px 0 80px;
+  }
+
+  .rj-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+    gap: 16px;
+  }
+
+  .rj-heading {
+    font-size: 1.5rem;
+  }
+
+  .rj-queue-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .queue-actions-col {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .rj-schedule-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .rj-shows-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rj-shortcuts-grid {
+    grid-template-columns: 1fr;
+  }
+}

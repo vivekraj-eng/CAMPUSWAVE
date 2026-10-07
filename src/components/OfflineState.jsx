@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, Radio, RefreshCw } from 'lucide-react';
-import Logo from './Logo';
+import BrandLogo from './BrandLogo';
 import './OfflineState.css';
 
 export default function OfflineState({ upNextBroadcast, onRetry = null, onScheduleClick = null }) {
@@ -12,7 +12,7 @@ export default function OfflineState({ upNextBroadcast, onRetry = null, onSchedu
       </div>
 
       <div className="offline-logo-container">
-        <Logo size={110} className="offline-logo-muted" />
+        <BrandLogo variant="compact" size={96} className="offline-logo-muted" />
       </div>
 
       <h2 className="offline-headline font-display">Campus Wave Is Currently Off Air</h2>

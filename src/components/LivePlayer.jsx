@@ -1,17 +1,19 @@
 import React from 'react';
-import { Play, Square, Volume2, VolumeX, Radio, Wifi, Sliders } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Play, Square, Volume2, VolumeX, Radio, Users, Music2, MessageSquare, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAudioPlayer } from '../hooks/useAudioPlayer';
-import Logo from './Logo';
+import { useRadioPlayer } from '../hooks/useRadioPlayer';
+import BrandLogo from './BrandLogo';
 import RadioWave from './RadioWave';
 import Waveform from './Waveform';
+import OfflineState from './OfflineState';
 import './LivePlayer.css';
 
 export default function LivePlayer() {
+  const navigate = useNavigate();
   const {
     streamUrl,
     state,
-    setSimulatorState,
     isPlaying,
     togglePlay,
     volume,
@@ -22,48 +24,26 @@ export default function LivePlayer() {
     currentBroadcast,
     trackMetadata,
     upNextBroadcast,
-    todaysSchedule,
+    listenerCount,
+    dbMetadata,
     getWaveformData
-  } = useAudioPlayer();
+  } = useRadioPlayer();
 
   const isLive = state === 'live';
   const isConnecting = state === 'connecting';
   const isOffline = state === 'offline';
+  const isError = state === 'error';
+
+  // Real or active broadcast details
+  const displayShow = dbMetadata?.current_show_title || (isLive ? currentBroadcast?.title : 'Studio Standby');
+  const displayRj = dbMetadata?.current_rj || (isLive ? currentBroadcast?.host : null);
+  const displayTrack = dbMetadata?.current_track || trackMetadata?.title || null;
+  const displayArtist = dbMetadata?.current_artist || trackMetadata?.artist || null;
 
   return (
     <div className="broadcast-console-root">
-      {/* Studio Diagnostic / State Simulator Bar (Allows inspecting Live, Connecting, Offline states) */}
-      <div className="console-state-toolbar font-mono">
-        <div className="toolbar-label">
-          <Sliders size={13} />
-          <span>CONSOLE PREVIEW:</span>
-        </div>
-        <div className="toolbar-controls">
-          <button
-            type="button"
-            className={`state-select-btn ${isLive ? 'active' : ''}`}
-            onClick={() => setSimulatorState('live')}
-          >
-            State 1: Live
-          </button>
-          <button
-            type="button"
-            className={`state-select-btn ${isConnecting ? 'active' : ''}`}
-            onClick={() => setSimulatorState('connecting')}
-          >
-            State 2: Connecting
-          </button>
-          <button
-            type="button"
-            className={`state-select-btn ${isOffline ? 'active' : ''}`}
-            onClick={() => setSimulatorState('offline')}
-          >
-            State 3: Offline
-          </button>
-        </div>
-      </div>
 
-      {/* Main Broadcast Console Player */}
+      {/* Main Broadcast Console Card */}
       <motion.div
         className="broadcast-console-card"
         initial={{ opacity: 0, y: 14 }}
@@ -81,52 +61,83 @@ export default function LivePlayer() {
             <Radio size={13} className="freq-icon" />
             <span>104.2 FM</span>
             <span className="bullet-sep">•</span>
-            <span>CAMPUS WAVE</span>
+            <span>CAMPUSWAVE STEREO</span>
           </div>
 
-          <div className="console-status-indicator">
-            {isLive ? (
-              <span className="live-status-pill">
-                <span className="pill-dot dot-live" />
-                <span>LIVE</span>
-              </span>
-            ) : isConnecting ? (
-              <span className="connecting-status-pill">
-                <span className="pill-dot dot-connecting" />
-                <span>CONNECTING</span>
-              </span>
-            ) : (
-              <span className="offline-status-pill">
-                <span className="pill-dot dot-offline" />
-                <span>OFFLINE</span>
-              </span>
+          <div className="console-status-cluster">
+            {/* Listener count - only shown when real source exists */}
+            {listenerCount !== null && (
+              <div className="listener-count-pill">
+                <Users size={12} />
+                <span>{listenerCount.toLocaleString()} LISTENING</span>
+              </div>
             )}
+
+            <div className="console-status-indicator">
+              {isLive ? (
+                <span className="live-status-pill">
+                  <span className="pill-dot dot-live" />
+                  <span>LIVE ON AIR</span>
+                </span>
+              ) : isConnecting ? (
+                <span className="connecting-status-pill">
+                  <span className="pill-dot dot-connecting" />
+                  <span>CONNECTING</span>
+                </span>
+              ) : isError ? (
+                <span className="error-status-pill">
+                  <AlertCircle size={12} />
+                  <span>TRANSMISSION ERROR</span>
+                </span>
+              ) : (
+                <span className="offline-status-pill">
+                  <span className="pill-dot dot-offline" />
+                  <span>OFFLINE</span>
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Center Mascot & Station Branding */}
         <div className="console-center-stage">
           <div className="console-logo-mount">
-            <Logo size={150} showGlow={isPlaying} className="console-dinosaur-emblem" />
+            <BrandLogo variant="hero" size={148} showGlow={isPlaying} className="console-dinosaur-emblem" />
           </div>
 
           <div className="console-identity-text">
-            <h2 className="console-station-name font-display">CAMPUS WAVE</h2>
+            <h2 className="console-station-name font-display">CAMPUSWAVE</h2>
+            <div className="console-show-title font-display">{displayShow}</div>
+            {displayRj && <div className="console-rj-name font-mono">ON MIC: {displayRj}</div>}
+
             <p className="console-state-msg font-mono">
               {isLive
-                ? 'Campus Wave is broadcasting.'
+                ? 'Broadcasting live from Campus Media Pavilion Room 104.'
                 : isConnecting
-                ? 'Connecting to broadcast feed...'
-                : 'Campus Wave is currently between broadcasts.'}
+                ? connectionMessage || 'Connecting to broadcast feed...'
+                : isError
+                ? 'Signal interrupted. Please check stream carrier.'
+                : 'Studio transmitter is currently on standby.'}
             </p>
           </div>
         </div>
+
+        {/* Current Song / Content Badge if emitting */}
+        {displayTrack && (
+          <div className="console-track-banner font-mono">
+            <Music2 size={14} className="track-icon" />
+            <span className="track-label">NOW PLAYING:</span>
+            <span className="track-info">
+              {displayTrack} {displayArtist ? `— ${displayArtist}` : ''}
+            </span>
+          </div>
+        )}
 
         {/* Waveform Visualization Tray */}
         <div className="console-waveform-tray" aria-label="Audio Waveform Display">
           <Waveform
             isPlaying={isPlaying}
-            isOffline={isOffline}
+            isOffline={isOffline || isError}
             isConnecting={isConnecting}
             getWaveformData={getWaveformData}
             height={68}
@@ -145,8 +156,9 @@ export default function LivePlayer() {
             type="button"
             className={`console-play-btn font-mono ${isPlaying ? 'playing' : ''}`}
             onClick={togglePlay}
-            aria-label={isPlaying ? 'Pause Campus Wave' : 'Play Campus Wave'}
-            title={isPlaying ? 'Pause Campus Wave' : 'Play Campus Wave'}
+            disabled={!streamUrl && isOffline}
+            aria-label={isPlaying ? 'Pause CampusWave broadcast' : 'Play CampusWave broadcast'}
+            title={isPlaying ? 'Pause CampusWave broadcast' : 'Play CampusWave broadcast'}
           >
             {isPlaying ? (
               <>
@@ -166,8 +178,8 @@ export default function LivePlayer() {
               type="button"
               className="console-mute-btn"
               onClick={toggleMute}
-              aria-label={isMuted ? 'Unmute Campus Wave' : 'Mute Campus Wave'}
-              title={isMuted ? 'Unmute Campus Wave' : 'Mute Campus Wave'}
+              aria-label={isMuted ? 'Unmute CampusWave' : 'Mute CampusWave'}
+              title={isMuted ? 'Unmute CampusWave' : 'Mute CampusWave'}
             >
               {isMuted || volume === 0 ? <VolumeX size={19} /> : <Volume2 size={19} />}
             </button>
@@ -187,6 +199,29 @@ export default function LivePlayer() {
           </div>
         </div>
 
+        {/* Interactive Broadcast Action Buttons */}
+        <div className="console-broadcast-actions">
+          <button
+            type="button"
+            className="broadcast-action-btn song-request-btn font-mono"
+            onClick={() => navigate('/requests?tab=song')}
+            aria-label="Submit a song request to the live show"
+          >
+            <Music2 size={15} />
+            <span>SONG REQUEST</span>
+          </button>
+
+          <button
+            type="button"
+            className="broadcast-action-btn shoutout-btn font-mono"
+            onClick={() => navigate('/requests?tab=shoutout')}
+            aria-label="Submit a campus shout-out to be read on air"
+          >
+            <MessageSquare size={15} />
+            <span>SHOUT-OUT</span>
+          </button>
+        </div>
+
         {/* Technical Console Footer */}
         <div className="console-bottom-hardware font-mono">
           <div className="hardware-item">
@@ -196,7 +231,7 @@ export default function LivePlayer() {
           <div className="hw-sep" />
           <div className="hardware-item">
             <span className="hw-label">TRANSMITTER</span>
-            <span className="hw-val">CAMPUS PAVILION</span>
+            <span className="hw-val">CAMPUS PAVILION ROOM 104</span>
           </div>
           <div className="hw-sep" />
           <div className="hardware-item">
@@ -206,89 +241,14 @@ export default function LivePlayer() {
         </div>
       </motion.div>
 
-      {/* Broadcast Sections: Now On Campus Wave & Up Next */}
-      <div className="console-secondary-sections">
-        {/* CURRENT BROADCAST: NOW ON CAMPUS WAVE */}
-        <section className="broadcast-info-card">
-          <div className="card-technical-bar font-mono">
-            <span className="card-section-label">NOW ON CAMPUS WAVE</span>
-            <span className="card-mode-label">{isLive ? 'ACTIVE' : 'STANDBY'}</span>
-          </div>
-
-          <div className="broadcast-info-body">
-            {/* Strict Content Rule: Show real track/host metadata ONLY if real data exists */}
-            {trackMetadata ? (
-              <div className="real-metadata-row">
-                {trackMetadata.artwork && (
-                  <img
-                    src={trackMetadata.artwork}
-                    alt={trackMetadata.title}
-                    className="track-artwork-thumb"
-                  />
-                )}
-                <div>
-                  <h3 className="track-title font-display">{trackMetadata.title}</h3>
-                  <p className="track-artist">{trackMetadata.artist}</p>
-                </div>
-              </div>
-            ) : currentBroadcast?.host ? (
-              <div>
-                <h3 className="broadcast-title font-display">{currentBroadcast.title}</h3>
-                <p className="broadcast-host">Host: {currentBroadcast.host}</p>
-              </div>
-            ) : (
-              <div>
-                <h3 className="broadcast-title font-display">STUDIO BROADCAST</h3>
-                <p className="broadcast-desc">Campus Wave radio stream</p>
-                <p className="broadcast-sub font-mono">104.2 FM • Autonomous Student Broadcasting</p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* UP NEXT (ONLY rendered when actual schedule data exists) */}
-        {upNextBroadcast && (
-          <section className="broadcast-info-card up-next-card">
-            <div className="card-technical-bar font-mono">
-              <span className="card-section-label">UP NEXT</span>
-              <span className="card-time-range">{upNextBroadcast.startTime} — {upNextBroadcast.endTime}</span>
-            </div>
-            <div className="broadcast-info-body">
-              <h3 className="upnext-title font-display">{upNextBroadcast.title}</h3>
-              {upNextBroadcast.host && (
-                <p className="upnext-host">Presented by {upNextBroadcast.host}</p>
-              )}
-            </div>
-          </section>
-        )}
-      </div>
-
-      {/* TODAY'S SCHEDULE (ONLY rendered when actual schedule data exists) */}
-      {todaysSchedule && todaysSchedule.length > 0 && (
-        <section className="console-schedule-section">
-          <div className="schedule-header font-mono">
-            <span>TODAY'S SCHEDULE</span>
-            <span>TRANSMISSION LINEUP</span>
-          </div>
-          <div className="console-schedule-list">
-            {todaysSchedule.map((item) => (
-              <div
-                key={item.id}
-                className={`schedule-entry-row ${item.active && isLive ? 'is-active-entry' : ''}`}
-              >
-                <div className="entry-time font-mono">{item.time}</div>
-                <div className="entry-show font-display">{item.title}</div>
-                <div className="entry-status font-mono">
-                  {item.active && isLive ? (
-                    <span className="badge-live-sm">ON AIR</span>
-                  ) : (
-                    <span>SCHEDULED</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+      {/* If entirely offline and not playing, provide additional reassurance */}
+      {!isPlaying && isOffline && !streamUrl && (
+        <div style={{ marginTop: '36px' }}>
+          <OfflineState
+            upNextBroadcast={upNextBroadcast}
+            onScheduleClick={() => navigate('/schedule')}
+          />
+        </div>
       )}
     </div>
   );

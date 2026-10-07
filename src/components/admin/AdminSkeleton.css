@@ -1,0 +1,46 @@
+.admin-skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: skeletonPulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-bar {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.header-skeleton {
+  height: 68px;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.skeleton-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md, 14px);
+}
+
+.skeleton-stat {
+  height: 120px;
+}
+
+.skeleton-table {
+  height: 380px;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.85; }
+}
+
+@media (max-width: 900px) {
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+}

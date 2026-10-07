@@ -1,0 +1,66 @@
+/* ErrorState Component Styles */
+.error-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: linear-gradient(135deg, rgba(239, 83, 80, 0.05) 0%, rgba(16, 21, 34, 0.85) 100%);
+  border: 1px solid rgba(239, 83, 80, 0.25);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  margin: 20px 0;
+}
+
+.error-state-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(239, 83, 80, 0.12);
+  border: 1px solid rgba(239, 83, 80, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #EF5350;
+  margin-bottom: 16px;
+}
+
+.error-state-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.error-state-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.error-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: rgba(239, 83, 80, 0.15);
+  border: 1px solid rgba(239, 83, 80, 0.4);
+  border-radius: var(--radius-sm);
+  color: #FCA5A5;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.error-retry-btn:hover {
+  background: #EF5350;
+  color: #FFFFFF;
+  border-color: #EF5350;
+  box-shadow: 0 0 16px rgba(239, 83, 80, 0.4);
+}

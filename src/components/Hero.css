@@ -27,25 +27,25 @@
 .eyebrow-accent-bar {
   width: 24px;
   height: 2px;
-  background: var(--accent-gold);
+  background: var(--accent-gradient);
   border-radius: 1px;
 }
 
 .eyebrow-text {
   font-size: 0.74rem;
   letter-spacing: 0.16em;
-  color: var(--accent-gold);
-  font-weight: 600;
+  color: var(--accent-purple-bright);
+  font-weight: 700;
   text-transform: uppercase;
 }
 
 /* Masthead Typography */
 .hero-masthead {
-  font-size: clamp(2.6rem, 5.2vw, 4.1rem);
-  font-weight: 800;
+  font-size: clamp(2.6rem, 5.2vw, 4.2rem);
+  font-weight: 900;
   line-height: 1.02;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  letter-spacing: -0.025em;
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
@@ -53,19 +53,21 @@
 
 .hero-subhead {
   font-size: clamp(1.2rem, 2.4vw, 1.7rem);
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-weight: 600;
+  background: linear-gradient(135deg, #60A5FA 0%, #C084FC 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: -0.01em;
   margin-top: 8px;
   line-height: 1.25;
 }
 
 .hero-manifesto {
-  font-size: 1.12rem;
+  font-size: 1.08rem;
   color: var(--text-secondary);
   line-height: 1.65;
   margin-bottom: 34px;
-  max-width: 500px;
+  max-width: 520px;
   font-weight: 400;
 }
 
@@ -77,16 +79,16 @@
   flex-wrap: wrap;
 }
 
-/* Refined Radio Status Panel */
+/* Studio Indicator Panel */
 .hero-status-panel {
   padding: 18px 22px;
-  background: var(--bg-surface-card);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-left: 3px solid var(--accent-gold);
+  border-left: 3px solid var(--accent-purple);
   border-radius: var(--radius-sm);
   max-width: 520px;
   box-shadow: var(--shadow-subtle);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
 }
 
 .status-panel-top {
@@ -109,7 +111,7 @@
   height: 7px;
   background-color: var(--status-live);
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(220, 56, 45, 0.7);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
 }
 
 .status-indicator-tag .status-dot.dot-offline {
@@ -129,7 +131,7 @@
 
 .status-dial {
   font-size: 0.72rem;
-  color: var(--accent-gold);
+  color: var(--accent-blue-bright);
   letter-spacing: 0.06em;
 }
 
@@ -139,7 +141,7 @@
 }
 
 .status-program-title {
-  font-size: 1.12rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 4px;
@@ -151,7 +153,7 @@
   line-height: 1.5;
 }
 
-/* Right Column: Radio Transmission Panel (Rack-Mount Aesthetic) */
+/* Right Column: Hardware Broadcast Rack */
 .hero-transmission-column {
   display: flex;
   align-items: center;
@@ -161,25 +163,25 @@
 .transmission-panel-rack {
   position: relative;
   width: 100%;
-  max-width: 410px;
-  background: linear-gradient(180deg, #121419 0%, #0A0B0E 100%);
-  border: 1px solid var(--border-subtle);
+  max-width: 420px;
+  background: linear-gradient(180deg, #13192B 0%, #0A0E1A 100%);
+  border: 1px solid rgba(139, 92, 246, 0.22);
   border-radius: var(--radius-lg);
   padding: 34px 26px 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: var(--shadow-elevated), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-elevated), 0 0 40px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Tactile Rack Mount Corners */
+/* Tactile Hardware Corners */
 .rack-corner {
   position: absolute;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #252830;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
@@ -205,12 +207,12 @@
   gap: 6px;
   font-size: 0.68rem;
   letter-spacing: 0.12em;
-  color: var(--accent-gold);
-  font-weight: 600;
+  color: var(--accent-purple-bright);
+  font-weight: 700;
 }
 
 .equipment-tag .tag-icon {
-  color: var(--accent-gold);
+  color: var(--accent-purple);
 }
 
 .carrier-frequency {
@@ -222,7 +224,7 @@
 }
 
 .carrier-val {
-  color: var(--text-primary);
+  color: var(--accent-blue-bright);
   font-weight: 600;
 }
 
@@ -251,7 +253,7 @@
 /* Spectrum Card */
 .transmission-spectrum-card {
   width: 100%;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(8, 12, 22, 0.6);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 10px 14px 8px;
@@ -277,11 +279,11 @@
 }
 
 .spectrum-monitor-label .icon-live-wave {
-  color: var(--accent-gold);
+  color: var(--accent-purple-bright);
 }
 
 .spectrum-mode {
-  color: var(--accent-gold-secondary);
+  color: var(--accent-cyan);
   font-weight: 600;
 }
 
@@ -289,7 +291,7 @@
   width: 100%;
 }
 
-/* Bottom Equipment Metadata Labels */
+/* Equipment Specs Footer */
 .panel-equipment-footer {
   display: flex;
   align-items: center;
@@ -323,7 +325,7 @@
   background: var(--border-subtle);
 }
 
-/* Mobile & Tablet Responsiveness */
+/* Responsiveness */
 @media (max-width: 960px) {
   .hero-container {
     grid-template-columns: 1fr;
@@ -339,10 +341,10 @@
 
 @media (max-width: 640px) {
   .hero-section {
-    padding: 40px 0 60px;
+    padding: 36px 0 50px;
   }
   .hero-masthead {
-    font-size: 2.5rem;
+    font-size: 2.4rem;
   }
   .hero-subhead {
     font-size: 1.15rem;

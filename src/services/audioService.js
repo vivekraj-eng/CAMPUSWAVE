@@ -1,7 +1,7 @@
 /**
  * Campus Wave Audio Service
  * Reusable singleton audio engine supporting real stream URLs,
- * HTML5 Audio API, and graceful offline state handling.
+ * on-demand podcast/episode tracks, HTML5 Audio API, and graceful offline state handling.
  */
 
 class AudioService {
@@ -14,7 +14,13 @@ class AudioService {
     this.gainNode = null;
     this.dataArray = null;
 
-    // States: 'live' | 'connecting' | 'offline'
+    // Mode: 'live' | 'podcast'
+    this.mode = 'live';
+    this.activeTrack = null;
+    this.currentTime = 0;
+    this.trackDuration = 0;
+
+    // States: 'live' | 'connecting' | 'offline' | 'error'
     this.state = this.streamUrl ? 'connecting' : 'offline';
     this.isPlaying = false;
     this.volume = 0.8;
@@ -22,8 +28,7 @@ class AudioService {
     this.connectionMessage = this.streamUrl ? 'Connecting to stream' : 'Campus Wave is not currently broadcasting.';
     this.listeners = new Set();
 
-    // Data-driven models (Strict Content Rule: never invent fake songs, fake hosts or fake schedules)
-    // If real metadata exists, use it; otherwise provide authentic standard broadcast labels
+    // Data-driven models
     this.currentBroadcast = {
       title: 'STUDIO BROADCAST',
       sub: 'Campus Wave radio stream',
@@ -31,9 +36,9 @@ class AudioService {
       track: null
     };
 
-    this.trackMetadata = null; // null if no real track metadata emitted
-    this.upNextBroadcast = null; // null if no backend schedule exists (omitted from UI)
-    this.todaysSchedule = []; // empty if no backend schedule exists (omitted from UI)
+    this.trackMetadata = null;
+    this.upNextBroadcast = null;
+    this.todaysSchedule = [];
 
     if (this.streamUrl) {
       this.initAudioElement();
@@ -50,14 +55,14 @@ class AudioService {
 
       this.audioElement.addEventListener('waiting', () => {
         this.state = 'connecting';
-        this.connectionMessage = 'Buffering stream carrier...';
+        this.connectionMessage = this.mode === 'podcast' ? 'Buffering episode...' : 'Buffering stream carrier...';
         this.notify();
       });
 
       this.audioElement.addEventListener('playing', () => {
         this.state = 'live';
         this.isPlaying = true;
-        this.connectionMessage = 'Connected • Broadcasting live';
+        this.connectionMessage = this.mode === 'podcast' ? `Playing: ${this.activeTrack?.title || 'Episode'}` : 'Connected • Broadcasting live';
         this.notify();
       });
 
@@ -68,20 +73,36 @@ class AudioService {
 
       this.audioElement.addEventListener('ended', () => {
         this.isPlaying = false;
-        this.state = 'offline';
-        this.connectionMessage = 'Stream transmission ended.';
+        this.currentTime = 0;
         this.notify();
       });
 
-      this.audioElement.addEventListener('error', (e) => {
-        this.state = 'offline';
+      this.audioElement.addEventListener('timeupdate', () => {
+        if (this.audioElement) {
+          this.currentTime = this.audioElement.currentTime;
+          this.notify();
+        }
+      });
+
+      this.audioElement.addEventListener('loadedmetadata', () => {
+        if (this.audioElement) {
+          this.trackDuration = this.audioElement.duration || 0;
+          this.notify();
+        }
+      });
+
+      this.audioElement.addEventListener('error', () => {
+        this.state = 'error';
         this.isPlaying = false;
-        this.connectionMessage = 'Stream temporarily unavailable.';
+        this.connectionMessage = this.mode === 'podcast'
+          ? 'Episode playback error.'
+          : 'Stream carrier unavailable or connection interrupted.';
         this.notify();
       });
-    } catch (err) {
-      this.state = 'offline';
+    } catch {
+      this.state = 'error';
       this.isPlaying = false;
+      this.connectionMessage = 'Audio engine failed to initialize.';
     }
   }
 
@@ -109,8 +130,10 @@ class AudioService {
     }
   }
 
-  play() {
-    // If no stream URL configured, gracefully remain offline
+  playLive() {
+    this.mode = 'live';
+    this.activeTrack = null;
+
     if (!this.streamUrl) {
       this.state = 'offline';
       this.isPlaying = false;
@@ -146,6 +169,81 @@ class AudioService {
     }
   }
 
+  playTrack(track) {
+    if (!track?.audio_url) return;
+
+    this.mode = 'podcast';
+    this.activeTrack = track;
+
+    if (!this.audioElement) {
+      this.initAudioElement();
+    }
+
+    this.initWebAudio();
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
+    }
+
+    if (this.audioElement) {
+      this.state = 'connecting';
+      this.connectionMessage = `Loading: ${track.title}...`;
+      this.notify();
+
+      if (this.audioElement.src !== track.audio_url) {
+        this.audioElement.src = track.audio_url;
+      }
+
+      this.audioElement.play().then(() => {
+        this.isPlaying = true;
+        this.state = 'live';
+        this.notify();
+      }).catch(err => {
+        console.warn('Track playback failed:', err);
+        this.state = 'error';
+        this.isPlaying = false;
+        this.connectionMessage = 'Audio file could not be played.';
+        this.notify();
+      });
+    }
+  }
+
+  togglePlayTrack(track) {
+    if (this.mode === 'podcast' && this.activeTrack?.id === track.id) {
+      if (this.isPlaying) {
+        this.pause();
+      } else {
+        if (this.audioElement) {
+          this.audioElement.play().then(() => {
+            this.isPlaying = true;
+            this.notify();
+          });
+        }
+      }
+    } else {
+      this.playTrack(track);
+    }
+  }
+
+  seek(seconds) {
+    if (this.audioElement && this.mode === 'podcast') {
+      this.audioElement.currentTime = seconds;
+      this.currentTime = seconds;
+      this.notify();
+    }
+  }
+
+  play() {
+    if (this.mode === 'podcast' && this.activeTrack) {
+      if (this.audioElement) {
+        this.audioElement.play().catch(() => {});
+        this.isPlaying = true;
+        this.notify();
+      }
+    } else {
+      this.playLive();
+    }
+  }
+
   pause() {
     if (this.audioElement) {
       this.audioElement.pause();
@@ -155,12 +253,6 @@ class AudioService {
   }
 
   togglePlay() {
-    if (!this.streamUrl && this.state === 'offline') {
-      // If user clicks play when no stream URL exists, gracefully signal offline status
-      this.connectionMessage = 'No live broadcast streaming currently.';
-      this.notify();
-      return;
-    }
     if (this.isPlaying) {
       this.pause();
     } else {
@@ -187,7 +279,6 @@ class AudioService {
     this.notify();
   }
 
-  // Simulator helper: allows inspecting LIVE, CONNECTING and OFFLINE states in dev
   setSimulatorState(newState) {
     this.state = newState;
     if (newState === 'offline') {
@@ -226,6 +317,10 @@ class AudioService {
   getSnapshot() {
     return {
       streamUrl: this.streamUrl,
+      mode: this.mode,
+      activeTrack: this.activeTrack,
+      currentTime: this.currentTime,
+      trackDuration: this.trackDuration,
       state: this.state,
       isPlaying: this.isPlaying,
       volume: this.volume,

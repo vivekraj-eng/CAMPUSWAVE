@@ -1,0 +1,75 @@
+.form-status-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm, 6px);
+  margin-bottom: 22px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  animation: bannerFade 0.25s ease-out;
+}
+
+.status-banner-content {
+  flex: 1;
+}
+
+.status-banner-title {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: #FFFFFF;
+}
+
+.status-banner-text {
+  margin: 0;
+  color: var(--text-secondary, #94A3B8);
+  font-size: 0.82rem;
+}
+
+.status-banner-text code {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: var(--accent-blue, #4D8DFF);
+  font-size: 0.78rem;
+}
+
+.form-status-banner.submitting {
+  background: rgba(77, 141, 255, 0.1);
+  border: 1px solid rgba(77, 141, 255, 0.3);
+  color: #93C5FD;
+}
+
+.form-status-banner.success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34D399;
+}
+
+.form-status-banner.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #F87171;
+}
+
+.form-status-banner.warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #FCD34D;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes bannerFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
