@@ -108,15 +108,20 @@ export const eventService = {
       .select()
       .single();
 
-    if (!error) {
-      // Increment event registration count safely
-      const { data: ev } = await supabase.from('events').select('registration_count').eq('id', eventId).single();
-      if (ev) {
-        await supabase.from('events').update({ registration_count: (ev.registration_count || 0) + 1 }).eq('id', eventId);
+    if (error) {
+      if (error.code === '23505' || error.message?.includes('unique_event_user') || error.message?.includes('idx_event_reg_email') || error.message?.toLowerCase().includes('duplicate key')) {
+        return { data: null, error: new Error('You have already registered for this event.') };
       }
+      return { data: null, error };
     }
 
-    return { data, error };
+    // Increment event registration count safely
+    const { data: ev } = await supabase.from('events').select('registration_count').eq('id', eventId).single();
+    if (ev) {
+      await supabase.from('events').update({ registration_count: (ev.registration_count || 0) + 1 }).eq('id', eventId);
+    }
+
+    return { data, error: null };
   },
 
   async createEvent(eventData) {

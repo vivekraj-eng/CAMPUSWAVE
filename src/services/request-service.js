@@ -62,6 +62,15 @@ export const requestService = {
         .single();
     }
 
+    if (res.error) {
+      if (res.error.code === '23505' || res.error.message?.includes('idx_song_request_dedup') || res.error.message?.toLowerCase().includes('duplicate key')) {
+        return {
+          data: null,
+          error: new Error('You already have a pending request for this track. Our RJs will review it shortly!')
+        };
+      }
+    }
+
     return res;
   },
 
@@ -116,6 +125,15 @@ export const requestService = {
         .insert([legacyPayload])
         .select()
         .single();
+    }
+
+    if (res.error) {
+      if (res.error.code === '23505' || res.error.message?.includes('idx_shoutout_dedup') || res.error.message?.toLowerCase().includes('duplicate key')) {
+        return {
+          data: null,
+          error: new Error('A matching pending shout-out has already been submitted. Our RJs will read it on air soon!')
+        };
+      }
     }
 
     return res;

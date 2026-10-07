@@ -60,5 +60,11 @@ function createFallbackClient() {
 }
 
 export const supabase = isSupabaseConfigured
-  ? createClient(formatSupabaseUrl(supabaseUrl), supabaseAnonKey)
+  ? createClient(formatSupabaseUrl(supabaseUrl), supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+      }
+    })
   : createFallbackClient();

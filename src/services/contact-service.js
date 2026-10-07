@@ -46,6 +46,15 @@ export const contactService = {
         .single();
     }
 
+    if (res.error) {
+      if (res.error.code === '23505' || res.error.message?.includes('idx_contact_message_dedup') || res.error.message?.toLowerCase().includes('duplicate key')) {
+        return {
+          data: null,
+          error: new Error('A message with this content was already submitted recently. Our team will review it!')
+        };
+      }
+    }
+
     return res;
   },
 

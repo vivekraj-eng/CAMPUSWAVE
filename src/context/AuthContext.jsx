@@ -10,54 +10,117 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const isMountedRef = useRef(true);
+
+  const loadUserProfile = useCallback(async (userId) => {
+    if (!userId) return null;
+    try {
+      return await authService.getProfile(userId);
+    } catch (err) {
+      console.warn('Profile fetch exception:', err);
+      return null;
+    }
+  }, []);
+
   const refreshSession = useCallback(async () => {
     try {
       const { session: currentSession, user: currentUser, profile: currentProfile } = await authService.getSession();
-      setSession(currentSession);
-      setUser(currentUser);
-      setProfile(currentProfile);
+      if (isMountedRef.current) {
+        setSession(currentSession);
+        setUser(currentUser);
+        setProfile(currentProfile);
+      }
     } catch (err) {
       console.warn('Session load error:', err);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    refreshSession();
+    isMountedRef.current = true;
 
-    if (isSupabaseConfigured) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-        if (newSession?.user) {
-          setSession(newSession);
-          setUser(newSession.user);
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
 
-          // Synchronize authorized role when sign-in or token refresh occurs
-          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+    // Set up centralized Supabase Auth State Change Listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      if (!isMountedRef.current) return;
+
+      switch (event) {
+        case 'INITIAL_SESSION':
+          if (newSession?.user) {
+            setSession(newSession);
+            setUser(newSession.user);
+            const p = await loadUserProfile(newSession.user.id);
+            if (isMountedRef.current) setProfile(p);
+          } else {
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+          }
+          if (isMountedRef.current) setLoading(false);
+          break;
+
+        case 'SIGNED_IN':
+          if (newSession?.user) {
+            setSession(newSession);
+            setUser(newSession.user);
             try {
               await supabase.rpc('sync_authorized_staff_role');
             } catch (err) {
-              // Ignore if RPC unavailable
+              // RPC may not exist if migration not yet applied
             }
+            const p = await loadUserProfile(newSession.user.id);
+            if (isMountedRef.current) setProfile(p);
           }
+          if (isMountedRef.current) setLoading(false);
+          break;
 
-          const p = await authService.getProfile(newSession.user.id);
-          setProfile(p);
-        } else {
+        case 'SIGNED_OUT':
           setSession(null);
           setUser(null);
           setProfile(null);
-        }
-        setLoading(false);
-      });
+          if (isMountedRef.current) setLoading(false);
+          break;
 
-      return () => {
-        subscription?.unsubscribe();
-      };
-    } else {
-      setLoading(false);
-    }
-  }, [refreshSession]);
+        case 'TOKEN_REFRESHED':
+          if (newSession?.user) {
+            setSession(newSession);
+            setUser(newSession.user);
+          }
+          if (isMountedRef.current) setLoading(false);
+          break;
+
+        case 'USER_UPDATED':
+          if (newSession?.user) {
+            setSession(newSession);
+            setUser(newSession.user);
+            const p = await loadUserProfile(newSession.user.id);
+            if (isMountedRef.current) setProfile(p);
+          }
+          if (isMountedRef.current) setLoading(false);
+          break;
+
+        default:
+          if (newSession?.user) {
+            setSession(newSession);
+            setUser(newSession.user);
+          }
+          if (isMountedRef.current) setLoading(false);
+          break;
+      }
+    });
+
+    return () => {
+      isMountedRef.current = false;
+      subscription?.unsubscribe();
+    };
+  }, [loadUserProfile]);
 
   const signIn = async (email, password) => {
     setLoading(true);

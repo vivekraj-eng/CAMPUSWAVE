@@ -116,6 +116,15 @@ export const applicationService = {
         .single();
     }
 
+    if (res.error) {
+      if (res.error.code === '23505' || res.error.message?.includes('idx_club_app_pending') || res.error.message?.toLowerCase().includes('duplicate key')) {
+        return {
+          data: null,
+          error: new Error('You already have a pending club application on file with the station team.')
+        };
+      }
+    }
+
     return res;
   },
 
