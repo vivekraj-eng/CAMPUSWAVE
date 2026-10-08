@@ -95,13 +95,28 @@ export async function handler(event) {
       }
 
       // Query database for user profile and authoritative role
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('id, role, full_name')
         .eq('id', user.id)
         .maybeSingle();
 
-      const userRole = profile?.role || 'student';
+      let userRole = profile?.role || 'student';
+
+      // Also verify authoritative role against authorized_staff table
+      if (user.email) {
+        const { data: staff } = await supabase
+          .from('authorized_staff')
+          .select('role, is_active')
+          .eq('email', user.email.toLowerCase().trim())
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (staff?.role) {
+          userRole = staff.role;
+        }
+      }
+
       const isAuthorized = userRole === 'rj' || userRole === 'admin';
 
       if (!isAuthorized) {
@@ -115,9 +130,30 @@ export async function handler(event) {
         };
       }
 
-      const rjName = profile?.full_name || user.user_metadata?.full_name || 'CampusWave RJ';
+      const rjName = profile?.full_name || user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'CampusWave RJ');
 
-      // 3. Issue Broadcaster Token with Publish Permissions
+      // 3. Enforce Single Active Broadcast station-wide
+      const { data: nowPlaying } = await supabase
+        .from('radio_now_playing')
+        .select('is_live, current_rj, updated_at')
+        .limit(1)
+        .maybeSingle();
+
+      if (nowPlaying?.is_live) {
+        const activeRj = nowPlaying.current_rj || 'Another RJ';
+        if (activeRj !== rjName) {
+          return {
+            statusCode: 409,
+            headers,
+            body: JSON.stringify({
+              error: 'STATION_ALREADY_LIVE',
+              message: `CampusWave is already live with another RJ (${activeRj}). CampusWave supports one station-wide live broadcast at a time.`
+            })
+          };
+        }
+      }
+
+      // 4. Issue Broadcaster Token with Publish Permissions
       const at = new AccessToken(apiKey, apiSecret, {
         identity: `rj-${user.id}`,
         name: rjName,
@@ -149,7 +185,64 @@ export async function handler(event) {
       };
     }
 
-    // 4. Handle Listener ('subscribe') Token Request
+    // 5. Handle Admin Emergency Broadcast Termination
+    if (action === 'terminate') {
+      const authHeader = event.headers.authorization || event.headers.Authorization || '';
+      const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+      if (!token) {
+        return { statusCode: 401, headers, body: JSON.stringify({ error: 'UNAUTHORIZED' }) };
+      }
+
+      const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { persistSession: false }
+      });
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+      if (userError || !user) {
+        return { statusCode: 401, headers, body: JSON.stringify({ error: 'INVALID_TOKEN' }) };
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      let userRole = profile?.role;
+      if (user.email) {
+        const { data: staff } = await supabase
+          .from('authorized_staff')
+          .select('role')
+          .eq('email', user.email.toLowerCase().trim())
+          .eq('is_active', true)
+          .maybeSingle();
+        if (staff?.role) userRole = staff.role;
+      }
+
+      if (userRole !== 'admin') {
+        return { statusCode: 403, headers, body: JSON.stringify({ error: 'FORBIDDEN', message: 'Only station administrators can terminate an active broadcast.' }) };
+      }
+
+      await supabase
+        .from('radio_now_playing')
+        .update({
+          is_live: false,
+          stream_url: null,
+          current_track: null,
+          current_artist: null,
+          updated_at: new Date().toISOString()
+        })
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, message: 'Broadcast terminated by administrator.' })
+      };
+    }
+
+    // 6. Handle Listener ('subscribe') Token Request
     // Listeners receive strictly subscriber-only privileges (canPublish: false)
     const listenerId = `listener-${Math.random().toString(36).substring(2, 10)}`;
     const listenerName = body.name ? String(body.name).slice(0, 40) : 'CampusWave Listener';

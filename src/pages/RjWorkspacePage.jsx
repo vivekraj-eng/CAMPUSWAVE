@@ -455,7 +455,13 @@ export default function RjWorkspacePage() {
                   {/* All Overview: Render complete workspace */}
                   {activeTab === 'all' && (
                     <>
-                      <RjLiveStudio assignedShows={data.assignedShows} />
+                      <RjLiveStudio
+                        assignedShows={data.assignedShows}
+                        requests={data.requests}
+                        shoutouts={data.shoutouts}
+                        onUpdateRequestStatus={handleUpdateRequestStatus}
+                        onUpdateShoutoutStatus={handleUpdateShoutoutStatus}
+                      />
                       <RjQuickActions onSwitchTab={setActiveTab} />
                       <MyShowsCard shows={data.assignedShows} />
                       <RJRequestQueue
@@ -482,7 +488,13 @@ export default function RjWorkspacePage() {
                   {/* Focused view tabs */}
                   {activeTab === 'live' && (
                     <>
-                      <RjLiveStudio assignedShows={data.assignedShows} />
+                      <RjLiveStudio
+                        assignedShows={data.assignedShows}
+                        requests={data.requests}
+                        shoutouts={data.shoutouts}
+                        onUpdateRequestStatus={handleUpdateRequestStatus}
+                        onUpdateShoutoutStatus={handleUpdateShoutoutStatus}
+                      />
                     </>
                   )}
 

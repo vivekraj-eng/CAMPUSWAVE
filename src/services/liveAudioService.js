@@ -31,12 +31,23 @@ class LiveAudioService {
     this.isMuted = false;
     this.broadcastStartTime = null;
     this.broadcasterError = null;
+    this.connectionStatus = 'standby';
+    this.listenerCount = null;
 
     // Listener states: 'idle' | 'connecting' | 'listening' | 'autoplay_blocked' | 'offline' | 'error'
     this.listenerState = 'idle';
     this.listenerError = null;
 
     this.listeners = new Set();
+
+    // Clean disconnect on tab close/unload
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => {
+        if (this.broadcasterState === 'live') {
+          this.stopBroadcast();
+        }
+      });
+    }
   }
 
   subscribe(cb) {
@@ -60,6 +71,8 @@ class LiveAudioService {
       isMuted: this.isMuted,
       broadcastStartTime: this.broadcastStartTime,
       broadcasterError: this.broadcasterError,
+      connectionStatus: this.connectionStatus,
+      listenerCount: this.listenerCount,
       listenerState: this.listenerState,
       listenerError: this.listenerError,
       isLivePublishing: this.broadcasterState === 'live',
@@ -211,7 +224,37 @@ class LiveAudioService {
         dynacast: true,
       });
 
+      this.publisherRoom.on(RoomEvent.Connected, () => {
+        this.connectionStatus = 'connected';
+        this.listenerCount = this.publisherRoom.remoteParticipants.size;
+        this.notify();
+      });
+
+      this.publisherRoom.on(RoomEvent.Reconnecting, () => {
+        this.connectionStatus = 'reconnecting';
+        this.notify();
+      });
+
+      this.publisherRoom.on(RoomEvent.Reconnected, () => {
+        this.connectionStatus = 'connected';
+        this.listenerCount = this.publisherRoom.remoteParticipants.size;
+        this.notify();
+      });
+
+      this.publisherRoom.on(RoomEvent.ParticipantConnected, () => {
+        this.listenerCount = this.publisherRoom.remoteParticipants.size;
+        this.notify();
+        radioService.updateNowPlaying({ listener_count: Math.max(1, this.listenerCount + 1) }).catch(() => {});
+      });
+
+      this.publisherRoom.on(RoomEvent.ParticipantDisconnected, () => {
+        this.listenerCount = this.publisherRoom.remoteParticipants.size;
+        this.notify();
+        radioService.updateNowPlaying({ listener_count: Math.max(1, this.listenerCount + 1) }).catch(() => {});
+      });
+
       this.publisherRoom.on(RoomEvent.Disconnected, () => {
+        this.connectionStatus = 'disconnected';
         if (this.broadcasterState === 'live') {
           this.stopBroadcast();
         }
@@ -223,7 +266,7 @@ class LiveAudioService {
       await this.publisherRoom.localParticipant.publishTrack(this.localAudioTrack);
 
       // 5. Update station metadata in database
-      const rjName = profile?.full_name || user?.user_metadata?.full_name || 'CampusWave RJ';
+      const rjName = profile?.full_name || user?.user_metadata?.full_name || (user?.email ? user.email.split('@')[0] : 'CampusWave RJ');
       await radioService.updateNowPlaying({
         is_live: true,
         current_rj: rjName,
@@ -233,6 +276,8 @@ class LiveAudioService {
       });
 
       this.broadcasterState = 'live';
+      this.connectionStatus = 'connected';
+      this.listenerCount = this.publisherRoom.remoteParticipants.size;
       this.broadcastStartTime = Date.now();
       this.notify();
 
@@ -240,6 +285,7 @@ class LiveAudioService {
     } catch (err) {
       console.error('Failed to start broadcast:', err);
       this.broadcasterState = 'error';
+      this.connectionStatus = 'error';
       this.broadcasterError = err.message || 'Could not connect to broadcast room.';
       this.notify();
       return { success: false, error: this.broadcasterError };
@@ -285,12 +331,15 @@ class LiveAudioService {
         is_live: false,
         stream_url: null,
         current_track: null,
-        current_artist: null
+        current_artist: null,
+        listener_count: 0
       }).catch(() => {});
     } catch (err) {
       console.warn('Error during stopBroadcast cleanup:', err);
     } finally {
       this.broadcasterState = 'idle';
+      this.connectionStatus = 'standby';
+      this.listenerCount = null;
       this.broadcastStartTime = null;
       this.isMuted = false;
       this.broadcasterError = null;
