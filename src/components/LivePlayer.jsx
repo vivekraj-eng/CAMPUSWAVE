@@ -137,52 +137,61 @@ export default function LivePlayer() {
             <BrandLogo variant="hero" size={148} showGlow={activeIsPlaying} className="console-dinosaur-emblem" />
           </div>
 
-          <div className="console-identity-text">
-            <h2 className="console-station-name font-display">CAMPUSWAVE</h2>
-            <div className="console-show-title font-display">{displayShow}</div>
-            {displayRj && <div className="console-rj-name font-mono">ON MIC: {displayRj}</div>}
+              <div className="console-identity-text">
+                <h2 className="console-station-name font-display">CampusWave Radio</h2>
+                {activeIsLive ? (
+                  <>
+                    <div className="console-show-title font-display">
+                      Show: {displayShow || 'Live Campus Broadcast'}
+                    </div>
+                    {displayRj && (
+                      <div className="console-rj-name font-mono">
+                        RJ: {displayRj}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="console-show-title font-display">OFF AIR</div>
+                    <p className="console-state-msg font-mono">
+                      CampusWave is currently not broadcasting.
+                    </p>
+                  </>
+                )}
 
-            <p className="console-state-msg font-mono">
-              {isLiveKitLive
-                ? 'Broadcasting live from the CampusWave RJ Studio microphone.'
-                : activeIsLive
-                ? 'Broadcasting live from Campus Media Pavilion Room 104.'
-                : activeIsConnecting
-                ? connectionMessage || 'Tuning to broadcast frequency...'
-                : liveKitError
-                ? liveKitError
-                : activeIsError
-                ? 'Signal interrupted. Please check stream carrier.'
-                : 'Studio transmitter is currently on standby.'}
-            </p>
-          </div>
-        </div>
+                {activeIsLive && (
+                  <p className="console-state-msg font-mono">
+                    Broadcasting live from the CampusWave RJ Studio.
+                  </p>
+                )}
+              </div>
+            </div>
 
-        {/* Current Song / Content Badge if emitting */}
-        {displayTrack && (
-          <div className="console-track-banner font-mono">
-            <Music2 size={14} className="track-icon" />
-            <span className="track-label">NOW PLAYING:</span>
-            <span className="track-info">
-              {displayTrack} {displayArtist ? `— ${displayArtist}` : ''}
-            </span>
-          </div>
-        )}
+            {/* Current Song / Content Badge if emitting */}
+            {displayTrack && (
+              <div className="console-track-banner font-mono">
+                <Music2 size={14} className="track-icon" />
+                <span className="track-label">NOW PLAYING:</span>
+                <span className="track-info">
+                  {displayTrack} {displayArtist ? `— ${displayArtist}` : ''}
+                </span>
+              </div>
+            )}
 
-        {/* Autoplay Interruption Banner if browser blocked sound */}
-        {isLiveKitLive && liveKitState === 'autoplay_blocked' && (
-          <div className="console-autoplay-prompt font-mono" style={{ margin: '0 auto 16px', textAlign: 'center' }}>
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={unlockLiveAudio}
-              style={{ background: '#ec4899', borderColor: '#f472b6', gap: '8px', padding: '10px 20px' }}
-            >
-              <Volume1 size={18} />
-              <span>TAP TO UNMUTE LIVE BROADCAST</span>
-            </button>
-          </div>
-        )}
+            {/* Autoplay Interruption Banner if browser blocked sound */}
+            {isLiveKitLive && liveKitState === 'autoplay_blocked' && (
+              <div className="console-autoplay-prompt font-mono" style={{ margin: '0 auto 16px', textAlign: 'center' }}>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={unlockLiveAudio}
+                  style={{ background: '#ec4899', borderColor: '#f472b6', gap: '8px', padding: '10px 20px' }}
+                >
+                  <Volume1 size={18} />
+                  <span>TAP TO LISTEN</span>
+                </button>
+              </div>
+            )}
 
         {/* Waveform Visualization Tray */}
         <div className="console-waveform-tray" aria-label="Audio Waveform Display">

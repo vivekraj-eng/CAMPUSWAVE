@@ -75,7 +75,7 @@ export function useRadioPlayer() {
     };
   }, []);
 
-  const isLiveKitLive = Boolean(liveDbData?.is_live && liveDbData?.stream_url === 'livekit');
+  const isLiveKitLive = Boolean(liveDbData?.is_live);
   const isExternalLive = Boolean(!isLiveKitLive && snapshot.state === 'live');
 
   // Unified audio waveform data
