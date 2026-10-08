@@ -7,21 +7,16 @@ import {
   RadioTower,
   Play,
   Square,
-  Volume2,
   AlertCircle,
-  Clock,
-  Sparkles,
-  ShieldCheck,
-  Headphones,
   Signal,
-  CheckCircle2,
   Users,
   Music2,
-  MessageSquare,
   ChevronDown,
   ChevronUp,
   Check,
-  X
+  RefreshCw,
+  Clock,
+  Volume2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { liveAudioService } from '../../services/liveAudioService';
@@ -30,8 +25,8 @@ import './RjLiveStudio.css';
 
 /**
  * CampusWave RJ Live Studio
- * Professional college radio control booth.
- * Live WebRTC audio broadcast powered by LiveKit Cloud SFU.
+ * REAL Radio Broadcaster Console.
+ * Microhpone capture -> LiveKit WebRTC SFU -> Listeners.
  */
 export default function RjLiveStudio({
   assignedShows = [],
@@ -54,7 +49,7 @@ export default function RjLiveStudio({
   const meterIntervalRef = useRef(null);
   const timerIntervalRef = useRef(null);
 
-  // Subscribe to LiveAudioService state changes
+  // Subscribe to live audio service state
   useEffect(() => {
     const unsub = liveAudioService.subscribe((snapshot) => {
       setLiveState(snapshot);
@@ -62,7 +57,7 @@ export default function RjLiveStudio({
     return () => unsub();
   }, []);
 
-  // Poll real microphone VU level from physical audio stream
+  // Poll real microphone VU level from physical Web Audio AnalyserNode
   useEffect(() => {
     if (liveState.broadcasterState === 'mic_ready' || liveState.broadcasterState === 'live') {
       meterIntervalRef.current = setInterval(() => {
@@ -77,7 +72,7 @@ export default function RjLiveStudio({
     };
   }, [liveState.broadcasterState]);
 
-  // Live session duration clock
+  // Live session duration timer
   useEffect(() => {
     if (liveState.broadcasterState === 'live' && liveState.broadcastStartTime) {
       timerIntervalRef.current = setInterval(() => {
@@ -93,14 +88,14 @@ export default function RjLiveStudio({
     };
   }, [liveState.broadcasterState, liveState.broadcastStartTime]);
 
-  // Check current station-wide broadcast state from Supabase
+  // Check station-wide broadcast state
   const checkStationState = async () => {
     setIsCheckingStation(true);
     try {
       const data = await radioService.getNowPlaying();
       setActiveStationBroadcast(data);
     } catch {
-      // Handled silently
+      // Ignored
     } finally {
       setIsCheckingStation(false);
     }
@@ -129,8 +124,8 @@ export default function RjLiveStudio({
 
   const handleStartBroadcast = async () => {
     const effectiveShow = selectedShowTitle === 'custom'
-      ? (customShowTitle.trim() || 'Live Studio Broadcast')
-      : (selectedShowTitle || assignedShows[0]?.title || 'Live Studio Broadcast');
+      ? (customShowTitle.trim() || 'Live CampusWave Broadcast')
+      : (selectedShowTitle || assignedShows[0]?.title || 'Live CampusWave Broadcast');
 
     const res = await liveAudioService.startBroadcast({
       user,
@@ -163,7 +158,7 @@ export default function RjLiveStudio({
     activeStationBroadcast?.current_rj !== rjName &&
     !isLive;
 
-  // Genuine counts of pending listener requests
+  // Genuine pending requests
   const pendingRequests = requests.filter(
     (r) => (r.status || 'pending').toLowerCase() === 'pending'
   );
@@ -191,371 +186,379 @@ export default function RjLiveStudio({
     }
   };
 
+  // Helper to render text-based and visual VU blocks (e.g. ████████░░░░)
+  const renderVuBlocks = (level) => {
+    const totalBlocks = 12;
+    const filledBlocks = Math.round((level / 100) * totalBlocks);
+    return '█'.repeat(filledBlocks) + '░'.repeat(totalBlocks - filledBlocks);
+  };
+
+  const currentShowDisplay = selectedShowTitle === 'custom'
+    ? (customShowTitle.trim() || 'Custom Show')
+    : (selectedShowTitle || assignedShows[0]?.title || 'Live CampusWave Broadcast');
+
   return (
-    <div className="rj-live-studio-root" id="rj-live-radio-section">
-      {/* Studio Header Bar */}
-      <div className="radio-card studio-hero-card">
-        <div className="studio-hero-top">
-          <div className="studio-ident">
-            <div className="studio-ident-badge font-mono">
-              <RadioTower size={14} className="accent-glow" />
-              <span>CAMPUSWAVE LIVE STUDIO</span>
-              <span className="dot-divider">•</span>
-              <span>104.2 FM STEREO</span>
-            </div>
-            <h1 className="studio-title font-display">Live Radio Studio</h1>
-            <p className="studio-subtitle">
-              Broadcast directly from your browser microphone into the campus-wide audio stream.
-            </p>
+    <div className="rj-broadcast-console" id="rj-live-studio-console">
+      {/* Console Top Header */}
+      <div className="console-header-card">
+        <div className="console-brand-row">
+          <div className="console-brand-left font-mono">
+            <RadioTower size={18} className="console-tower-icon" />
+            <span className="console-brand-text">CAMPUSWAVE LIVE STUDIO</span>
           </div>
 
-          {/* Studio "ON AIR" / "OFF AIR" Sign */}
-          <div className={`on-air-sign font-mono ${isLive ? 'is-live' : 'is-off-air'}`}>
-            <span className="on-air-led" />
-            <span className="on-air-text">{isLive ? '🔴 LIVE' : 'OFF AIR'}</span>
+          {/* Header Status Badge */}
+          <div className="console-state-badge font-mono">
+            {isLive ? (
+              <span className="badge-live-now">
+                <span className="live-blink-dot" />
+                <span>🔴 LIVE NOW</span>
+              </span>
+            ) : isMicReady ? (
+              <span className="badge-ready">
+                <span className="ready-dot" />
+                <span>🟢 READY TO BROADCAST</span>
+              </span>
+            ) : (
+              <span className="badge-off-air">
+                <span className="off-air-dot" />
+                <span>🔴 OFF AIR</span>
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Conflict Warning: Another RJ is live */}
+        {/* Station Conflict Alert */}
         {anotherRjIsLive && (
-          <div className="studio-alert-banner alert-warning font-mono">
+          <div className="console-alert alert-warning font-mono">
             <AlertCircle size={16} />
-            <div className="alert-content">
-              <strong>Station In Use:</strong> CampusWave is already live with another RJ ({activeStationBroadcast.current_rj}){' '}
-              <em>"{activeStationBroadcast.current_show_title}"</em>. Wait until their broadcast concludes.
-            </div>
+            <span>
+              CAMPUSWAVE is already live with another RJ ({activeStationBroadcast.current_rj}).
+              Station allows one broadcast at a time.
+            </span>
           </div>
         )}
 
-        {/* Error Banner */}
+        {/* Real Error Banner */}
         {liveState.broadcasterError && (
-          <div className="studio-alert-banner alert-danger font-mono">
+          <div className="console-alert alert-error font-mono">
             <AlertCircle size={16} />
-            <div className="alert-content">
-              <strong>Broadcast Error:</strong> {liveState.broadcasterError}
-            </div>
+            <span>{liveState.broadcasterError}</span>
           </div>
         )}
       </div>
 
-      {/* Main Studio Console Grid */}
-      <div className="studio-console-grid">
-        {/* Left Column: Transmission Controls */}
-        <div className="radio-card studio-panel controls-panel">
-          <div className="panel-header font-mono">
-            <span className="panel-title">1. BROADCAST CONTROLS</span>
-            <span className="panel-status-pill">
-              {isLive ? 'TRANSMITTING' : isMicReady ? 'MIC ARMED' : 'STANDBY'}
-            </span>
-          </div>
+      {/* Main Console Body */}
+      <div className="console-main-panel">
+        {/* ================================================================
+            STATE 1: OFF AIR (Microphone not yet enabled)
+            ================================================================ */}
+        {!isMicReady && !isLive && (
+          <div className="console-stage stage-off-air">
+            <div className="stage-meta-grid font-mono">
+              <div className="meta-block">
+                <span className="meta-label">Broadcasting as:</span>
+                <strong className="meta-value text-white">{rjName}</strong>
+              </div>
 
-          {/* Show Selection */}
-          <div className="studio-form-group">
-            <label className="studio-label font-mono">BROADCAST SEGMENT / SHOW</label>
-            <select
-              className="studio-select"
-              disabled={isLive}
-              value={selectedShowTitle}
-              onChange={(e) => setSelectedShowTitle(e.target.value)}
-            >
-              {assignedShows.length > 0 ? (
-                <>
-                  {assignedShows.map((s) => (
-                    <option key={s.id} value={s.title}>
-                      {s.title} ({s.category || 'General'})
-                    </option>
-                  ))}
-                  <option value="custom">-- Custom Special Segment --</option>
-                </>
-              ) : (
-                <>
-                  <option value="Live Campus Broadcast">Live Campus Broadcast</option>
-                  <option value="Indie Hour with RJ">Indie Hour with RJ</option>
-                  <option value="Campus Discourse Live">Campus Discourse Live</option>
-                  <option value="custom">-- Custom Show Title --</option>
-                </>
-              )}
-            </select>
+              <div className="meta-block">
+                <span className="meta-label">Microphone:</span>
+                <span className="meta-value text-muted">[ Not Connected ]</span>
+              </div>
 
-            {selectedShowTitle === 'custom' && (
-              <input
-                type="text"
-                placeholder="Enter custom broadcast title..."
-                className="studio-input"
-                disabled={isLive}
-                value={customShowTitle}
-                onChange={(e) => setCustomShowTitle(e.target.value)}
-              />
-            )}
-          </div>
+              <div className="meta-block show-selector-block">
+                <label className="meta-label" htmlFor="rj-show-select">Current Show:</label>
+                <select
+                  id="rj-show-select"
+                  className="console-select font-mono"
+                  value={selectedShowTitle}
+                  onChange={(e) => setSelectedShowTitle(e.target.value)}
+                >
+                  {assignedShows.length > 0 ? (
+                    <>
+                      {assignedShows.map((s) => (
+                        <option key={s.id} value={s.title}>
+                          {s.title}
+                        </option>
+                      ))}
+                      <option value="custom">-- Custom Broadcast Segment --</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Live CampusWave Broadcast">Live CampusWave Broadcast</option>
+                      <option value="custom">-- Custom Broadcast Segment --</option>
+                    </>
+                  )}
+                </select>
 
-          {/* Broadcaster Identity & Station Metadata */}
-          <div className="broadcaster-meta-box font-mono">
-            <div className="meta-row">
-              <span className="meta-label">CURRENT RJ:</span>
-              <strong className="meta-val">{rjName}</strong>
-            </div>
-            <div className="meta-row">
-              <span className="meta-label">CURRENT SHOW:</span>
-              <span className="meta-val">
-                {selectedShowTitle === 'custom'
-                  ? (customShowTitle || 'Custom Broadcast')
-                  : (selectedShowTitle || assignedShows[0]?.title || 'Live Campus Broadcast')}
-              </span>
-            </div>
-            <div className="meta-row">
-              <span className="meta-label">MICROPHONE:</span>
-              <span className={`meta-val ${liveState.isMuted ? 'text-amber' : isMicReady || isLive ? 'text-green' : 'text-muted'}`}>
-                {liveState.isMuted
-                  ? 'HARDWARE MUTED'
-                  : isLive
-                  ? 'ACTIVE ON AIR'
-                  : isMicReady
-                  ? 'READY / ARMED'
-                  : 'NOT CONNECTED'}
-              </span>
-            </div>
-            <div className="meta-row">
-              <span className="meta-label">CONNECTION:</span>
-              <span className={`meta-val ${isLive ? 'text-green' : isConnecting ? 'text-amber' : 'text-muted'}`}>
-                {isLive
-                  ? 'CONNECTED (LiveKit SFU)'
-                  : isConnecting
-                  ? 'CONNECTING...'
-                  : 'STANDBY'}
-              </span>
-            </div>
-            {isLive && (
-              <>
-                <div className="meta-row">
-                  <span className="meta-label">LIVE DURATION:</span>
-                  <span className="meta-val text-red accent-clock">{formatTimer(elapsedSeconds)}</span>
-                </div>
-                {liveState.listenerCount !== null && (
-                  <div className="meta-row">
-                    <span className="meta-label">LISTENERS:</span>
-                    <span className="meta-val text-cyan">
-                      {liveState.listenerCount} {liveState.listenerCount === 1 ? 'TUNED IN' : 'TUNED IN'}
-                    </span>
-                  </div>
+                {selectedShowTitle === 'custom' && (
+                  <input
+                    type="text"
+                    placeholder="Enter custom show title..."
+                    className="console-input font-mono"
+                    value={customShowTitle}
+                    onChange={(e) => setCustomShowTitle(e.target.value)}
+                  />
                 )}
-              </>
-            )}
-          </div>
+              </div>
+            </div>
 
-          {/* Main Action Trigger */}
-          <div className="studio-action-cluster">
-            {!isMicReady && !isLive ? (
+            <div className="console-action-row">
               <button
                 type="button"
-                className="btn-studio-action btn-arm-mic font-mono"
+                className="btn-console btn-enable-mic font-mono"
                 disabled={isRequestingMic}
                 onClick={handleRequestMic}
               >
-                <Mic size={18} />
-                <span>{isRequestingMic ? 'REQUESTING MICROPHONE...' : 'REQUEST MIC PERMISSION'}</span>
+                <Mic size={20} />
+                <span>{isRequestingMic ? 'REQUESTING PERMISSION...' : 'ENABLE MICROPHONE'}</span>
               </button>
-            ) : !isLive ? (
-              <div className="broadcast-trigger-row">
-                <button
-                  type="button"
-                  className="btn-studio-action btn-go-live font-mono"
-                  disabled={isConnecting || anotherRjIsLive}
-                  onClick={handleStartBroadcast}
-                >
-                  <Play size={18} fill="currentColor" />
-                  <span>{isConnecting ? 'CONNECTING TO AIR...' : 'START LIVE'}</span>
-                </button>
-              </div>
-            ) : (
-              <div className="live-controls-cluster">
-                <button
-                  type="button"
-                  className={`btn-mute-toggle font-mono ${liveState.isMuted ? 'muted' : 'unmuted'}`}
-                  onClick={handleToggleMute}
-                  title={liveState.isMuted ? 'Unmute microphone' : 'Mute microphone'}
-                >
-                  {liveState.isMuted ? <MicOff size={18} /> : <Mic size={18} />}
-                  <span>{liveState.isMuted ? 'UNMUTE MICROPHONE' : 'MUTE MICROPHONE'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-studio-action btn-stop-live font-mono"
-                  onClick={handleStopBroadcast}
-                >
-                  <Square size={16} fill="currentColor" />
-                  <span>STOP LIVE</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Physical Audio Level & VU Meter */}
-        <div className="radio-card studio-panel meters-panel">
-          <div className="panel-header font-mono">
-            <span className="panel-title">2. MICROPHONE VU METER</span>
-            <span className="panel-signal">
-              <Signal size={14} className={isLive ? 'text-green' : 'text-muted'} />
-            </span>
-          </div>
-
-          {/* Real Audio Volume Bar from Web Audio AnalyserNode */}
-          <div className="vu-meter-box">
-            <div className="vu-scale font-mono">
-              <span>-∞</span>
-              <span>-24</span>
-              <span>-12</span>
-              <span>-6</span>
-              <span>-3</span>
-              <span>0dB</span>
-              <span className="text-red">PEAK</span>
-            </div>
-
-            <div className="vu-meter-track">
-              <div
-                className={`vu-meter-fill ${micLevel > 85 ? 'peak' : micLevel > 60 ? 'warm' : 'normal'}`}
-                style={{ width: `${micLevel}%` }}
-              />
-            </div>
-
-            <div className="vu-indicator-row font-mono">
-              <div className="vu-level-badge">
-                <span>INPUT LEVEL:</span>
-                <strong>{micLevel}%</strong>
-              </div>
-              <div className="vu-hardware-status">
-                {liveState.isMuted ? (
-                  <span className="badge-muted">HARDWARE MUTED</span>
-                ) : micLevel > 5 ? (
-                  <span className="badge-active">SIGNAL ACTIVE</span>
-                ) : (
-                  <span className="badge-silence">SILENCE</span>
-                )}
-              </div>
             </div>
           </div>
+        )}
 
-          {/* Visual Activity Bars (driven directly by Web Audio data) */}
-          <div className="studio-wave-bars">
-            {Array.from({ length: 16 }).map((_, i) => {
-              const activeRatio = (micLevel / 100);
-              const heightPercent = Math.max(8, Math.min(100, Math.round(activeRatio * 100 * (1 - Math.abs(i - 8) / 10))));
-              return (
+        {/* ================================================================
+            STATE 2: READY TO BROADCAST (Microphone enabled, level active)
+            ================================================================ */}
+        {isMicReady && !isLive && (
+          <div className="console-stage stage-ready">
+            <div className="stage-meta-grid font-mono">
+              <div className="meta-block">
+                <span className="meta-label">Broadcasting as:</span>
+                <strong className="meta-value text-white">{rjName}</strong>
+              </div>
+
+              <div className="meta-block">
+                <span className="meta-label">Current Show:</span>
+                <strong className="meta-value text-purple">{currentShowDisplay}</strong>
+              </div>
+
+              <div className="meta-block">
+                <span className="meta-label">Microphone:</span>
+                <span className="meta-value text-green">[ ● READY ]</span>
+              </div>
+            </div>
+
+            {/* Real Microphone Level VU Meter */}
+            <div className="vu-meter-card font-mono">
+              <div className="vu-label-row">
+                <span className="vu-title">Microphone Level:</span>
+                <span className="vu-text-blocks">{renderVuBlocks(micLevel)}</span>
+                <span className="vu-numeric">{micLevel}%</span>
+              </div>
+
+              <div className="vu-bar-track">
                 <div
-                  key={i}
-                  className="wave-bar-col"
-                  style={{
-                    height: `${heightPercent}%`,
-                    opacity: isLive || isMicReady ? 0.3 + (micLevel / 150) : 0.15
-                  }}
+                  className={`vu-bar-fill ${micLevel > 85 ? 'peak' : micLevel > 60 ? 'warm' : 'normal'}`}
+                  style={{ width: `${micLevel}%` }}
                 />
-              );
-            })}
-          </div>
-
-          {/* Real Listener Requests On-Air Summary */}
-          <div className="studio-requests-banner font-mono">
-            <div className="requests-banner-head">
-              <div className="banner-title-wrap">
-                <Music2 size={14} />
-                <span>PENDING REQUESTS</span>
               </div>
+
+              <div className="vu-footer-row">
+                <span>-∞ dB</span>
+                <span>-24</span>
+                <span>-12</span>
+                <span>-6</span>
+                <span>0 dB</span>
+                <span className={micLevel > 85 ? 'text-red' : 'text-muted'}>PEAK</span>
+              </div>
+            </div>
+
+            <div className="console-action-row">
               <button
                 type="button"
-                className="btn-toggle-requests"
+                className="btn-console btn-start-live font-mono"
+                disabled={isConnecting || anotherRjIsLive}
+                onClick={handleStartBroadcast}
+              >
+                <Play size={20} fill="currentColor" />
+                <span>{isConnecting ? 'CONNECTING TO AIR...' : 'START LIVE'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================
+            STATE 3: LIVE NOW (Transmitting live WebRTC audio)
+            ================================================================ */}
+        {isLive && (
+          <div className="console-stage stage-live">
+            <div className="stage-meta-grid font-mono">
+              <div className="meta-block">
+                <span className="meta-label">Broadcasting as:</span>
+                <strong className="meta-value text-white">{rjName}</strong>
+              </div>
+
+              <div className="meta-block">
+                <span className="meta-label">Current Show:</span>
+                <strong className="meta-value text-purple">{currentShowDisplay}</strong>
+              </div>
+
+              <div className="meta-block">
+                <span className="meta-label">Broadcast Time:</span>
+                <strong className="meta-value text-red timer-pulse">{formatTimer(elapsedSeconds)}</strong>
+              </div>
+
+              <div className="meta-block">
+                <span className="meta-label">Connection:</span>
+                <strong className="meta-value text-green">CONNECTED</strong>
+              </div>
+
+              <div className="meta-block">
+                <span className="meta-label">Listeners:</span>
+                <strong className="meta-value text-cyan">
+                  {liveState.listenerCount !== null ? liveState.listenerCount : 0}
+                </strong>
+              </div>
+
+              <div className="meta-block">
+                <span className="meta-label">Microphone Status:</span>
+                <strong className={`meta-value ${liveState.isMuted ? 'text-amber' : 'text-green'}`}>
+                  {liveState.isMuted ? 'HARDWARE MUTED' : 'ON AIR'}
+                </strong>
+              </div>
+            </div>
+
+            {/* Real Microphone Level Meter */}
+            <div className="vu-meter-card font-mono">
+              <div className="vu-label-row">
+                <span className="vu-title">Microphone Level:</span>
+                <span className="vu-text-blocks">{renderVuBlocks(liveState.isMuted ? 0 : micLevel)}</span>
+                <span className="vu-numeric">{liveState.isMuted ? 'MUTED' : `${micLevel}%`}</span>
+              </div>
+
+              <div className="vu-bar-track">
+                <div
+                  className={`vu-bar-fill ${liveState.isMuted ? 'muted' : micLevel > 85 ? 'peak' : micLevel > 60 ? 'warm' : 'normal'}`}
+                  style={{ width: `${liveState.isMuted ? 0 : micLevel}%` }}
+                />
+              </div>
+
+              <div className="vu-footer-row">
+                <span>-∞ dB</span>
+                <span>-24</span>
+                <span>-12</span>
+                <span>-6</span>
+                <span>0 dB</span>
+                <span className={micLevel > 85 && !liveState.isMuted ? 'text-red' : 'text-muted'}>PEAK</span>
+              </div>
+            </div>
+
+            {/* Live Broadcaster Controls Cluster */}
+            <div className="console-action-row live-action-row">
+              <button
+                type="button"
+                className={`btn-console btn-mute font-mono ${liveState.isMuted ? 'is-muted' : ''}`}
+                onClick={handleToggleMute}
+              >
+                {liveState.isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+                <span>{liveState.isMuted ? 'UNMUTE MICROPHONE' : 'MUTE MICROPHONE'}</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-console btn-stop-live font-mono"
+                onClick={handleStopBroadcast}
+              >
+                <Square size={18} fill="currentColor" />
+                <span>STOP LIVE</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================
+            REQUESTS & SHOUT-OUTS (During Live or Standby)
+            ================================================================ */}
+        <div className="console-requests-section font-mono">
+          <div className="requests-header-bar">
+            <div className="requests-title">
+              <Music2 size={16} />
+              <span>REQUESTS & SHOUT-OUTS</span>
+            </div>
+
+            <div className="requests-badges">
+              <span className="req-pill">Song requests: {pendingRequests.length}</span>
+              <span className="req-pill">Shout-outs: {pendingShoutouts.length}</span>
+
+              <button
+                type="button"
+                className="btn-expand-reqs"
                 onClick={() => setShowLiveRequestsDrawer(!showLiveRequestsDrawer)}
               >
-                <span>{showLiveRequestsDrawer ? 'Hide Queue' : 'View Queue'}</span>
+                <span>{showLiveRequestsDrawer ? 'Close Queue' : 'Open Queue'}</span>
                 {showLiveRequestsDrawer ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
             </div>
-
-            <div className="requests-counts-row">
-              <div className="count-pill">
-                <span>Song requests:</span>
-                <strong>{pendingRequests.length}</strong>
-              </div>
-              <div className="count-pill">
-                <span>Shout-outs:</span>
-                <strong>{pendingShoutouts.length}</strong>
-              </div>
-            </div>
-
-            {/* Expandable Live Queue Drawer */}
-            <AnimatePresence>
-              {showLiveRequestsDrawer && (
-                <motion.div
-                  className="live-requests-drawer"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="drawer-inner">
-                    <h4 className="drawer-heading">SONG REQUESTS AWAITING PLAY ({pendingRequests.length})</h4>
-                    {pendingRequests.length === 0 ? (
-                      <p className="drawer-empty-msg">No pending song requests currently in queue.</p>
-                    ) : (
-                      <div className="drawer-list">
-                        {pendingRequests.slice(0, 5).map((req) => (
-                          <div key={req.id} className="drawer-item">
-                            <div className="item-details">
-                              <strong>{req.song_title}</strong>
-                              <span>{req.artist_name || 'Various'}</span>
-                            </div>
-                            <div className="item-actions">
-                              <button
-                                type="button"
-                                className="btn-drawer-action btn-play"
-                                disabled={processingId === req.id}
-                                onClick={() => handleLiveRequestAction(req.id, 'played')}
-                                title="Mark played on air"
-                              >
-                                <Check size={12} />
-                                <span>PLAYED</span>
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <h4 className="drawer-heading" style={{ marginTop: '12px' }}>
-                      SHOUT-OUTS AWAITING AIR ({pendingShoutouts.length})
-                    </h4>
-                    {pendingShoutouts.length === 0 ? (
-                      <p className="drawer-empty-msg">No pending shout-outs in queue.</p>
-                    ) : (
-                      <div className="drawer-list">
-                        {pendingShoutouts.slice(0, 4).map((so) => (
-                          <div key={so.id} className="drawer-item">
-                            <div className="item-details">
-                              <strong>For {so.recipient_name}</strong>
-                              <span className="quote-text">"{so.message}"</span>
-                            </div>
-                            <div className="item-actions">
-                              <button
-                                type="button"
-                                className="btn-drawer-action btn-play"
-                                disabled={processingId === so.id}
-                                onClick={() => handleLiveShoutoutAction(so.id, 'approved')}
-                                title="Approve on air"
-                              >
-                                <Check size={12} />
-                                <span>DELIVERED</span>
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
+
+          <AnimatePresence>
+            {showLiveRequestsDrawer && (
+              <motion.div
+                className="requests-drawer-body"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {/* Song Requests Sub-List */}
+                <div className="queue-block">
+                  <div className="queue-block-title">PENDING TRACK REQUESTS ({pendingRequests.length})</div>
+                  {pendingRequests.length === 0 ? (
+                    <p className="queue-empty">No pending track requests in queue.</p>
+                  ) : (
+                    <div className="queue-items">
+                      {pendingRequests.slice(0, 6).map((req) => (
+                        <div key={req.id} className="queue-item">
+                          <div className="queue-item-info">
+                            <strong>{req.song_title}</strong>
+                            <span>{req.artist_name || 'Unknown artist'}</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn-req-action"
+                            disabled={processingId === req.id}
+                            onClick={() => handleLiveRequestAction(req.id, 'played')}
+                          >
+                            <Check size={12} />
+                            <span>PLAYED</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Shoutouts Sub-List */}
+                <div className="queue-block" style={{ marginTop: '14px' }}>
+                  <div className="queue-block-title">PENDING SHOUT-OUTS ({pendingShoutouts.length})</div>
+                  {pendingShoutouts.length === 0 ? (
+                    <p className="queue-empty">No pending shout-outs in queue.</p>
+                  ) : (
+                    <div className="queue-items">
+                      {pendingShoutouts.slice(0, 6).map((so) => (
+                        <div key={so.id} className="queue-item">
+                          <div className="queue-item-info">
+                            <strong>For: {so.recipient_name}</strong>
+                            <span className="quote-text">"{so.message}"</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn-req-action"
+                            disabled={processingId === so.id}
+                            onClick={() => handleLiveShoutoutAction(so.id, 'approved')}
+                          >
+                            <Check size={12} />
+                            <span>DELIVERED</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Navigate, useLocation, Link } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic,
@@ -39,9 +39,31 @@ import './RjWorkspacePage.css';
 export default function RjWorkspacePage() {
   const { user, profile, role, isAuthenticated, loading: authLoading, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Active view tab: 'all' | 'shows' | 'requests' | 'shoutouts' | 'podcasts' | 'schedule' | 'account'
-  const [activeTab, setActiveTab] = useState('all');
+  // Active view tab: 'all' | 'live' | 'shows' | 'requests' | 'shoutouts' | 'podcasts' | 'schedule' | 'account'
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/live')) {
+      return 'live';
+    }
+    return 'all';
+  });
+
+  useEffect(() => {
+    if (location.pathname.includes('/live') || location.pathname === '/live-studio') {
+      setActiveTab('live');
+    } else if (location.pathname.includes('/shows')) {
+      setActiveTab('shows');
+    } else if (location.pathname.includes('/requests')) {
+      setActiveTab('requests');
+    } else if (location.pathname.includes('/shoutouts')) {
+      setActiveTab('shoutouts');
+    } else if (location.pathname.includes('/podcasts')) {
+      setActiveTab('podcasts');
+    } else if (location.pathname.includes('/schedule')) {
+      setActiveTab('schedule');
+    }
+  }, [location.pathname]);
 
   // Workspace data states
   const [data, setData] = useState({
@@ -199,7 +221,10 @@ export default function RjWorkspacePage() {
               <button
                 type="button"
                 className={`sidebar-nav-item ${activeTab === 'all' ? 'active' : ''}`}
-                onClick={() => setActiveTab('all')}
+                onClick={() => {
+                  setActiveTab('all');
+                  navigate('/rj');
+                }}
               >
                 <div className="sidebar-nav-item-inner">
                   <LayoutDashboard size={16} />
@@ -210,21 +235,27 @@ export default function RjWorkspacePage() {
               <button
                 type="button"
                 className={`sidebar-nav-item ${activeTab === 'live' ? 'active' : ''}`}
-                onClick={() => setActiveTab('live')}
+                onClick={() => {
+                  setActiveTab('live');
+                  navigate('/rj/live');
+                }}
               >
                 <div className="sidebar-nav-item-inner">
                   <RadioTower size={16} />
-                  <span>Live Radio</span>
+                  <span>LIVE RADIO</span>
                 </div>
                 <span className="sidebar-count-badge font-mono" style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.4)' }}>
-                  STUDIO
+                  BROADCAST
                 </span>
               </button>
 
               <button
                 type="button"
                 className={`sidebar-nav-item ${activeTab === 'shows' ? 'active' : ''}`}
-                onClick={() => setActiveTab('shows')}
+                onClick={() => {
+                  setActiveTab('shows');
+                  navigate('/rj/shows');
+                }}
               >
                 <div className="sidebar-nav-item-inner">
                   <Radio size={16} />
@@ -363,7 +394,10 @@ export default function RjWorkspacePage() {
                 role="tab"
                 aria-selected={activeTab === 'all'}
                 className={`mobile-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
-                onClick={() => setActiveTab('all')}
+                onClick={() => {
+                  setActiveTab('all');
+                  navigate('/rj');
+                }}
               >
                 Overview
               </button>
@@ -372,9 +406,12 @@ export default function RjWorkspacePage() {
                 role="tab"
                 aria-selected={activeTab === 'live'}
                 className={`mobile-tab-btn ${activeTab === 'live' ? 'active' : ''}`}
-                onClick={() => setActiveTab('live')}
+                onClick={() => {
+                  setActiveTab('live');
+                  navigate('/rj/live');
+                }}
               >
-                Live Radio 🔴
+                LIVE RADIO 🔴
               </button>
               <button
                 type="button"
