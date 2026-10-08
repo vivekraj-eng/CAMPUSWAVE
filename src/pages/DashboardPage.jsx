@@ -84,12 +84,7 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, user?.id, loadDashboard]);
 
-  // Auth protection check
-  if (!authLoading && !isAuthenticated) {
-    return <Navigate to="/login?redirect=/dashboard" state={{ from: location }} replace />;
-  }
-
-  // Initial auth session resolving
+  // 1. Initial auth session resolving
   if (authLoading) {
     return (
       <div className="student-dashboard-page">
@@ -98,6 +93,11 @@ export default function DashboardPage() {
         </div>
       </div>
     );
+  }
+
+  // 2. Auth protection check: Redirect to login preserving destination
+  if (!isAuthenticated) {
+    return <Navigate to="/login?redirect=/dashboard" state={{ from: location }} replace />;
   }
 
   const activeProfile = dashboardData.profile || authProfile;

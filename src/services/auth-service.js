@@ -12,6 +12,31 @@ export function normalizeEmail(email) {
 }
 
 /**
+ * Derives the optimal redirect destination for authentication emails.
+ * Handles desktop localhost, mobile LAN access, and optional environment overrides.
+ * @param {string} [path='/login']
+ * @returns {string|undefined}
+ */
+export function getAuthRedirectUrl(path = '/login') {
+  if (typeof window === 'undefined') return undefined;
+
+  // Optional environment override (e.g. LAN IP for mobile testing when signup originates on desktop)
+  const envAppUrl = import.meta.env.VITE_APP_URL ? import.meta.env.VITE_APP_URL.trim().replace(/\/$/, '') : '';
+
+  // Current browser origin (e.g. http://192.168.1.10:5173 when opened on phone or http://localhost:5173 on PC)
+  const currentOrigin = window.location.origin.replace(/\/$/, '');
+
+  // If currently accessing on localhost and an explicit LAN/app URL is configured, use the LAN URL
+  // so verification emails opened on a phone redirect to the LAN interface instead of unreachable phone localhost.
+  // Otherwise, use current browser origin.
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const baseOrigin = isLocalhost && envAppUrl ? envAppUrl : currentOrigin;
+
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${baseOrigin}${cleanPath}`;
+}
+
+/**
  * Authentication Service
  * Strictly interfaces with Supabase Auth and database authorization.
  * Zero demo users, zero mock sessions, zero stored passwords.
@@ -154,11 +179,14 @@ export const authService = {
       };
     }
 
+    const emailRedirectTo = getAuthRedirectUrl('/login');
+
     const { data, error } = await supabase.auth.signUp({
       email: normEmail,
       password,
       options: {
-        data: { full_name: cleanName }
+        data: { full_name: cleanName },
+        emailRedirectTo
       }
     });
 
@@ -215,7 +243,7 @@ export const authService = {
       return { data: null, error: new Error('Please enter your email address.') };
     }
 
-    const redirectTo = `${window.location.origin}/login?type=recovery`;
+    const redirectTo = getAuthRedirectUrl('/login?type=recovery');
     return await supabase.auth.resetPasswordForEmail(normEmail, {
       redirectTo
     });
@@ -256,9 +284,14 @@ export const authService = {
       return { data: null, error: new Error('Please enter your email address.') };
     }
 
+    const emailRedirectTo = getAuthRedirectUrl('/login');
+
     return await supabase.auth.resend({
       type: 'signup',
-      email: normEmail
+      email: normEmail,
+      options: {
+        emailRedirectTo
+      }
     });
   }
 };

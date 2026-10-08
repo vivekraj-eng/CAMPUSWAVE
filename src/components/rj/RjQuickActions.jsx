@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Radio, Music2, MessageSquare, Mic, Calendar, ExternalLink } from 'lucide-react';
+import { Radio, Music2, MessageSquare, Mic, Calendar, ExternalLink, RadioTower } from 'lucide-react';
 
 /**
  * RjQuickActions
@@ -8,6 +8,12 @@ import { Radio, Music2, MessageSquare, Mic, Calendar, ExternalLink } from 'lucid
  */
 export default function RjQuickActions({ onSwitchTab }) {
   const internalShortcuts = [
+    {
+      title: 'Live Radio Studio',
+      desc: 'Broadcast live from microphone',
+      tab: 'live',
+      icon: RadioTower
+    },
     {
       title: 'Review Track Requests',
       desc: 'Moderate live song queue',

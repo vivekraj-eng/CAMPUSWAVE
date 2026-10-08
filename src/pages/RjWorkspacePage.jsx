@@ -13,7 +13,8 @@ import {
   ExternalLink,
   Shield,
   User,
-  ArrowRight
+  ArrowRight,
+  RadioTower
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { rjService } from '../services/rj-service';
@@ -25,6 +26,7 @@ import RJShoutoutQueue from '../components/rj/RJShoutoutQueue';
 import RjPodcastManager from '../components/rj/RjPodcastManager';
 import RjQuickActions from '../components/rj/RjQuickActions';
 import RjWorkspaceSkeleton from '../components/rj/RjWorkspaceSkeleton';
+import RjLiveStudio from '../components/rj/RjLiveStudio';
 import AccountCard from '../components/dashboard/AccountCard';
 import ErrorState from '../components/ErrorState';
 import './RjWorkspacePage.css';
@@ -207,6 +209,20 @@ export default function RjWorkspacePage() {
 
               <button
                 type="button"
+                className={`sidebar-nav-item ${activeTab === 'live' ? 'active' : ''}`}
+                onClick={() => setActiveTab('live')}
+              >
+                <div className="sidebar-nav-item-inner">
+                  <RadioTower size={16} />
+                  <span>Live Radio</span>
+                </div>
+                <span className="sidebar-count-badge font-mono" style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.4)' }}>
+                  STUDIO
+                </span>
+              </button>
+
+              <button
+                type="button"
                 className={`sidebar-nav-item ${activeTab === 'shows' ? 'active' : ''}`}
                 onClick={() => setActiveTab('shows')}
               >
@@ -354,6 +370,15 @@ export default function RjWorkspacePage() {
               <button
                 type="button"
                 role="tab"
+                aria-selected={activeTab === 'live'}
+                className={`mobile-tab-btn ${activeTab === 'live' ? 'active' : ''}`}
+                onClick={() => setActiveTab('live')}
+              >
+                Live Radio 🔴
+              </button>
+              <button
+                type="button"
+                role="tab"
                 aria-selected={activeTab === 'shows'}
                 className={`mobile-tab-btn ${activeTab === 'shows' ? 'active' : ''}`}
                 onClick={() => setActiveTab('shows')}
@@ -430,6 +455,7 @@ export default function RjWorkspacePage() {
                   {/* All Overview: Render complete workspace */}
                   {activeTab === 'all' && (
                     <>
+                      <RjLiveStudio assignedShows={data.assignedShows} />
                       <RjQuickActions onSwitchTab={setActiveTab} />
                       <MyShowsCard shows={data.assignedShows} />
                       <RJRequestQueue
@@ -454,6 +480,12 @@ export default function RjWorkspacePage() {
                   )}
 
                   {/* Focused view tabs */}
+                  {activeTab === 'live' && (
+                    <>
+                      <RjLiveStudio assignedShows={data.assignedShows} />
+                    </>
+                  )}
+
                   {activeTab === 'shows' && (
                     <>
                       <MyShowsCard shows={data.assignedShows} />

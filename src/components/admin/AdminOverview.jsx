@@ -13,8 +13,11 @@ import {
   AlertCircle,
   CheckCircle2,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  RadioTower,
+  Square
 } from 'lucide-react';
+import { radioService } from '../../services/radio-service';
 import './AdminOverview.css';
 
 export default function AdminOverview({
@@ -22,6 +25,34 @@ export default function AdminOverview({
   needsAttention = { applications: [], requests: [], shoutouts: [], messages: [], total: 0 },
   loading = false
 }) {
+  const [liveBroadcast, setLiveBroadcast] = React.useState(null);
+
+  const fetchLiveState = React.useCallback(async () => {
+    try {
+      const data = await radioService.getNowPlaying();
+      setLiveBroadcast(data);
+    } catch {}
+  }, []);
+
+  React.useEffect(() => {
+    fetchLiveState();
+    const interval = setInterval(fetchLiveState, 8000);
+    return () => clearInterval(interval);
+  }, [fetchLiveState]);
+
+  const handleEmergencyStop = async () => {
+    if (!window.confirm('Are you sure you want to terminate the active live broadcast? Station will immediately return to standby.')) {
+      return;
+    }
+    await radioService.updateNowPlaying({
+      is_live: false,
+      stream_url: null,
+      current_track: null,
+      current_artist: null
+    });
+    await fetchLiveState();
+  };
+
   const metricCards = [
     {
       label: 'REGISTERED STUDENTS',
@@ -105,6 +136,96 @@ export default function AdminOverview({
 
   return (
     <div className="admin-overview-view">
+      {/* Real-time Station Broadcast Monitor & Emergency Override */}
+      <section className="admin-section-block" style={{ marginBottom: '24px' }}>
+        <div
+          className="radio-card"
+          style={{
+            padding: '16px 20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '14px',
+            background: liveBroadcast?.is_live
+              ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(16, 20, 36, 0.95))'
+              : 'rgba(16, 20, 36, 0.8)',
+            borderColor: liveBroadcast?.is_live ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.08)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} className="font-mono">
+              <span
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  background: liveBroadcast?.is_live ? '#ef4444' : '#64748b',
+                  boxShadow: liveBroadcast?.is_live ? '0 0 10px #ef4444' : 'none'
+                }}
+              />
+              <strong style={{ color: liveBroadcast?.is_live ? '#f87171' : 'var(--text-muted)', fontSize: '0.85rem' }}>
+                {liveBroadcast?.is_live ? 'STATION LIVE ON AIR' : 'STATION TRANSMITTER OFF AIR'}
+              </strong>
+            </div>
+
+            {liveBroadcast?.is_live && (
+              <div className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                <span>HOST: <strong style={{ color: '#fff' }}>{liveBroadcast.current_rj || 'CampusWave RJ'}</strong></span>
+                <span style={{ margin: '0 8px', opacity: 0.4 }}>•</span>
+                <span>SEGMENT: <strong style={{ color: '#fff' }}>"{liveBroadcast.current_show_title || 'Live Session'}"</strong></span>
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            {liveBroadcast?.is_live ? (
+              <button
+                type="button"
+                className="font-mono"
+                onClick={handleEmergencyStop}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  background: 'rgba(239, 68, 68, 0.2)',
+                  border: '1px solid rgba(239, 68, 68, 0.6)',
+                  color: '#f87171',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                <Square size={13} fill="currentColor" />
+                <span>TERMINATE BROADCAST</span>
+              </button>
+            ) : (
+              <Link
+                to="/rj"
+                className="font-mono"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  background: 'rgba(139, 92, 246, 0.15)',
+                  border: '1px solid rgba(139, 92, 246, 0.35)',
+                  color: '#c4b5fd',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: 600
+                }}
+              >
+                <RadioTower size={13} />
+                <span>OPEN RJ STUDIO</span>
+              </Link>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* Metrics Grid */}
       <section className="admin-section-block" aria-labelledby="metrics-title">
         <div className="section-header-compact">

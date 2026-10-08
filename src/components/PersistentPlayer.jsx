@@ -22,20 +22,29 @@ export default function PersistentPlayer() {
     isMuted,
     toggleMute,
     pause,
-    getWaveformData
+    getWaveformData,
+    isLiveKitLive,
+    isLiveKitListening,
+    dbMetadata
   } = useAudioPlayer();
 
+  const isActuallyPlaying = isPlaying || isLiveKitListening;
+
   // If no audio is loaded or playing, hide persistent bar
-  if (!isPlaying && !activeTrack) {
+  if (!isActuallyPlaying && !activeTrack) {
     return null;
   }
 
-  const isLiveMode = mode === 'live';
-  const title = isLiveMode
+  const isLiveMode = isLiveKitLive || mode === 'live';
+  const title = isLiveKitLive
+    ? dbMetadata?.current_show_title || 'Live Studio Broadcast'
+    : isLiveMode
     ? currentBroadcast?.title || 'CampusWave 104.2 FM'
     : activeTrack?.title || 'Podcast Episode';
 
-  const host = isLiveMode
+  const host = isLiveKitLive
+    ? dbMetadata?.current_rj || 'CampusWave RJ'
+    : isLiveMode
     ? currentBroadcast?.host || 'Studio Console'
     : activeTrack?.rj_name || 'CampusWave RJ';
 
@@ -78,14 +87,14 @@ export default function PersistentPlayer() {
             type="button"
             className="persistent-play-btn"
             onClick={togglePlay}
-            aria-label={isPlaying ? 'Pause Audio' : 'Play Audio'}
+            aria-label={isActuallyPlaying ? 'Pause Audio' : 'Play Audio'}
           >
-            {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
+            {isActuallyPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
           </button>
 
           <div className="persistent-waveform-slot" aria-hidden="true">
             <Waveform
-              isPlaying={isPlaying}
+              isPlaying={isActuallyPlaying}
               isOffline={false}
               getWaveformData={getWaveformData}
               height={28}

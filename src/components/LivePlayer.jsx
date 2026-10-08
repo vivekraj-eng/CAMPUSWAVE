@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Square, Volume2, VolumeX, Radio, Users, Music2, MessageSquare, AlertCircle } from 'lucide-react';
+import { Play, Square, Volume2, VolumeX, Radio, Users, Music2, MessageSquare, AlertCircle, Headphones, Volume1 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRadioPlayer } from '../hooks/useRadioPlayer';
 import BrandLogo from './BrandLogo';
@@ -26,19 +26,51 @@ export default function LivePlayer() {
     upNextBroadcast,
     listenerCount,
     dbMetadata,
-    getWaveformData
+    getWaveformData,
+    isLiveKitLive,
+    liveKitState,
+    liveKitError,
+    isLiveKitListening,
+    connectLiveKitListener,
+    disconnectLiveKitListener,
+    unlockLiveAudio
   } = useRadioPlayer();
 
-  const isLive = state === 'live';
-  const isConnecting = state === 'connecting';
-  const isOffline = state === 'offline';
-  const isError = state === 'error';
+  // If station is broadcasting via LiveKit, listen state dominates
+  const activeIsLive = isLiveKitLive || (state === 'live');
+  const activeIsPlaying = isLiveKitLive ? isLiveKitListening : isPlaying;
+  const activeIsConnecting = isLiveKitLive
+    ? (liveKitState === 'connecting')
+    : (state === 'connecting');
+  const activeIsOffline = !activeIsLive && !activeIsConnecting && (state === 'offline');
+  const activeIsError = Boolean(liveKitError) || (state === 'error' && !isLiveKitLive);
+
+  // Auto-disconnect LiveKit listener if broadcast concludes
+  useEffect(() => {
+    if (!isLiveKitLive && isLiveKitListening) {
+      disconnectLiveKitListener();
+    }
+  }, [isLiveKitLive, isLiveKitListening, disconnectLiveKitListener]);
 
   // Real or active broadcast details
-  const displayShow = dbMetadata?.current_show_title || (isLive ? currentBroadcast?.title : 'Studio Standby');
-  const displayRj = dbMetadata?.current_rj || (isLive ? currentBroadcast?.host : null);
+  const displayShow = dbMetadata?.current_show_title || (activeIsLive ? currentBroadcast?.title : 'Studio Standby');
+  const displayRj = dbMetadata?.current_rj || (activeIsLive ? currentBroadcast?.host : null);
   const displayTrack = dbMetadata?.current_track || trackMetadata?.title || null;
   const displayArtist = dbMetadata?.current_artist || trackMetadata?.artist || null;
+
+  const handlePlayToggle = () => {
+    if (isLiveKitLive) {
+      if (liveKitState === 'autoplay_blocked') {
+        unlockLiveAudio();
+      } else if (isLiveKitListening) {
+        disconnectLiveKitListener();
+      } else {
+        connectLiveKitListener();
+      }
+      return;
+    }
+    togglePlay();
+  };
 
   return (
     <div className="broadcast-console-root">
@@ -52,7 +84,7 @@ export default function LivePlayer() {
       >
         {/* Subtle Ambient Radio Waves Radiating from Console Center */}
         <div className="console-waves-halo" aria-hidden="true">
-          <RadioWave isPlaying={isPlaying} size={520} />
+          <RadioWave isPlaying={activeIsPlaying} size={520} />
         </div>
 
         {/* Console Header Bar */}
@@ -61,7 +93,7 @@ export default function LivePlayer() {
             <Radio size={13} className="freq-icon" />
             <span>104.2 FM</span>
             <span className="bullet-sep">•</span>
-            <span>CAMPUSWAVE STEREO</span>
+            <span>{isLiveKitLive ? 'LIVE RJ STUDIO' : 'CAMPUSWAVE STEREO'}</span>
           </div>
 
           <div className="console-status-cluster">
@@ -74,17 +106,17 @@ export default function LivePlayer() {
             )}
 
             <div className="console-status-indicator">
-              {isLive ? (
+              {activeIsLive ? (
                 <span className="live-status-pill">
                   <span className="pill-dot dot-live" />
-                  <span>LIVE ON AIR</span>
+                  <span>{isLiveKitLive ? 'RJ ON AIR' : 'LIVE ON AIR'}</span>
                 </span>
-              ) : isConnecting ? (
+              ) : activeIsConnecting ? (
                 <span className="connecting-status-pill">
                   <span className="pill-dot dot-connecting" />
                   <span>CONNECTING</span>
                 </span>
-              ) : isError ? (
+              ) : activeIsError ? (
                 <span className="error-status-pill">
                   <AlertCircle size={12} />
                   <span>TRANSMISSION ERROR</span>
@@ -102,7 +134,7 @@ export default function LivePlayer() {
         {/* Center Mascot & Station Branding */}
         <div className="console-center-stage">
           <div className="console-logo-mount">
-            <BrandLogo variant="hero" size={148} showGlow={isPlaying} className="console-dinosaur-emblem" />
+            <BrandLogo variant="hero" size={148} showGlow={activeIsPlaying} className="console-dinosaur-emblem" />
           </div>
 
           <div className="console-identity-text">
@@ -111,11 +143,15 @@ export default function LivePlayer() {
             {displayRj && <div className="console-rj-name font-mono">ON MIC: {displayRj}</div>}
 
             <p className="console-state-msg font-mono">
-              {isLive
+              {isLiveKitLive
+                ? 'Broadcasting live from the CampusWave RJ Studio microphone.'
+                : activeIsLive
                 ? 'Broadcasting live from Campus Media Pavilion Room 104.'
-                : isConnecting
-                ? connectionMessage || 'Connecting to broadcast feed...'
-                : isError
+                : activeIsConnecting
+                ? connectionMessage || 'Tuning to broadcast frequency...'
+                : liveKitError
+                ? liveKitError
+                : activeIsError
                 ? 'Signal interrupted. Please check stream carrier.'
                 : 'Studio transmitter is currently on standby.'}
             </p>
@@ -133,19 +169,34 @@ export default function LivePlayer() {
           </div>
         )}
 
+        {/* Autoplay Interruption Banner if browser blocked sound */}
+        {isLiveKitLive && liveKitState === 'autoplay_blocked' && (
+          <div className="console-autoplay-prompt font-mono" style={{ margin: '0 auto 16px', textAlign: 'center' }}>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={unlockLiveAudio}
+              style={{ background: '#ec4899', borderColor: '#f472b6', gap: '8px', padding: '10px 20px' }}
+            >
+              <Volume1 size={18} />
+              <span>TAP TO UNMUTE LIVE BROADCAST</span>
+            </button>
+          </div>
+        )}
+
         {/* Waveform Visualization Tray */}
         <div className="console-waveform-tray" aria-label="Audio Waveform Display">
           <Waveform
-            isPlaying={isPlaying}
-            isOffline={isOffline || isError}
-            isConnecting={isConnecting}
+            isPlaying={activeIsPlaying}
+            isOffline={activeIsOffline || activeIsError}
+            isConnecting={activeIsConnecting}
             getWaveformData={getWaveformData}
             height={68}
             barsCount={48}
           />
           <div className="console-waveform-meta font-mono">
             <span>TRANSMISSION: 104.20 MHz</span>
-            <span>ACOUSTIC SPECTRUM</span>
+            <span>{isLiveKitLive ? 'WEBRTC PCM FEED' : 'ACOUSTIC SPECTRUM'}</span>
             <span>DIGITAL STEREO</span>
           </div>
         </div>
@@ -154,16 +205,21 @@ export default function LivePlayer() {
         <div className="console-controls-cluster">
           <button
             type="button"
-            className={`console-play-btn font-mono ${isPlaying ? 'playing' : ''}`}
-            onClick={togglePlay}
-            disabled={!streamUrl && isOffline}
-            aria-label={isPlaying ? 'Pause CampusWave broadcast' : 'Play CampusWave broadcast'}
-            title={isPlaying ? 'Pause CampusWave broadcast' : 'Play CampusWave broadcast'}
+            className={`console-play-btn font-mono ${activeIsPlaying ? 'playing' : ''} ${isLiveKitLive && !activeIsPlaying ? 'pulsing-live' : ''}`}
+            onClick={handlePlayToggle}
+            disabled={!streamUrl && !isLiveKitLive && activeIsOffline}
+            aria-label={activeIsPlaying ? 'Pause CampusWave broadcast' : 'Play CampusWave broadcast'}
+            title={activeIsPlaying ? 'Pause CampusWave broadcast' : 'Play CampusWave broadcast'}
           >
-            {isPlaying ? (
+            {activeIsPlaying ? (
               <>
                 <Square size={20} fill="currentColor" />
                 <span>PAUSE</span>
+              </>
+            ) : isLiveKitLive ? (
+              <>
+                <Play size={20} fill="currentColor" />
+                <span>LISTEN LIVE</span>
               </>
             ) : (
               <>
@@ -226,23 +282,23 @@ export default function LivePlayer() {
         <div className="console-bottom-hardware font-mono">
           <div className="hardware-item">
             <span className="hw-label">CARRIER</span>
-            <span className="hw-val">104.2 FM STEREO</span>
+            <span className="hw-val">{isLiveKitLive ? 'WEBRTC 48kHz' : '104.2 FM STEREO'}</span>
           </div>
           <div className="hw-sep" />
           <div className="hardware-item">
             <span className="hw-label">TRANSMITTER</span>
-            <span className="hw-val">CAMPUS PAVILION ROOM 104</span>
+            <span className="hw-val">CAMPUS MEDIA BOOTH</span>
           </div>
           <div className="hw-sep" />
           <div className="hardware-item">
             <span className="hw-label">STATUS</span>
-            <span className="hw-val">{isLive ? 'ON AIR' : isConnecting ? 'TUNING' : 'STANDBY'}</span>
+            <span className="hw-val">{activeIsLive ? 'ON AIR' : activeIsConnecting ? 'TUNING' : 'STANDBY'}</span>
           </div>
         </div>
       </motion.div>
 
       {/* If entirely offline and not playing, provide additional reassurance */}
-      {!isPlaying && isOffline && !streamUrl && (
+      {!activeIsPlaying && activeIsOffline && !streamUrl && !isLiveKitLive && (
         <div style={{ marginTop: '36px' }}>
           <OfflineState
             upNextBroadcast={upNextBroadcast}

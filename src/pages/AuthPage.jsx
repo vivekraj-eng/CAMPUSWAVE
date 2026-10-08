@@ -27,19 +27,67 @@ export default function AuthPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [showResendBtn, setShowResendBtn] = useState(false);
 
-  const { signIn, signUp, resetPassword, updatePassword, resendVerification } = useAuth();
+  const {
+    isAuthenticated,
+    loading: authLoading,
+    signIn,
+    signUp,
+    resetPassword,
+    updatePassword,
+    resendVerification
+  } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const queryRedirect = new URLSearchParams(location.search).get('redirect');
 
-  // Detect recovery flow from URL query or hash
-  useEffect(() => {
-    const isRecovery =
-      new URLSearchParams(location.search).get('type') === 'recovery' ||
-      window.location.hash.includes('type=recovery');
+  // Compute destination preserving redirect parameter or defaulting to /dashboard
+  const getDestination = () => {
+    const requested = queryRedirect || location.state?.from?.pathname;
+    if (requested && requested !== '/login' && requested !== '/auth') {
+      return requested;
+    }
+    return '/dashboard';
+  };
 
-    if (isRecovery) {
+  // Automatically navigate once Supabase confirms authenticated session and auth state is available
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && mode !== 'recovery') {
+      const destination = getDestination();
+      navigate(destination, { replace: true });
+    }
+  }, [isAuthenticated, authLoading, mode, queryRedirect, location.state, navigate]);
+
+  // Detect recovery, error callbacks, and verification state from URL query or hash
+  useEffect(() => {
+    const rawHash = window.location.hash.startsWith('#') ? window.location.hash.substring(1) : window.location.hash;
+    const hashParams = new URLSearchParams(rawHash);
+    const searchParams = new URLSearchParams(location.search);
+
+    // 1. Detect Supabase Auth callback errors (e.g. otp_expired)
+    const urlErrorDesc = hashParams.get('error_description') || searchParams.get('error_description');
+    const urlErrorCode = hashParams.get('error_code') || searchParams.get('error_code') || hashParams.get('error') || searchParams.get('error');
+
+    if (urlErrorDesc) {
+      const decoded = decodeURIComponent(urlErrorDesc.replace(/\+/g, ' '));
+      if (urlErrorCode === 'otp_expired' || decoded.toLowerCase().includes('expired')) {
+        setErrorMsg('The email verification link has expired or was already used. Please request a new verification email.');
+        setShowResendBtn(true);
+      } else {
+        setErrorMsg(decoded);
+      }
+      return;
+    }
+
+    // 2. Detect recovery flow
+    const type = hashParams.get('type') || searchParams.get('type');
+    if (type === 'recovery') {
       setMode('recovery');
+      return;
+    }
+
+    // 3. Detect email confirmation callback
+    if (type === 'signup' || type === 'email_confirmation') {
+      setSuccessMsg('Email confirmation confirmed! You may now sign in to CampusWave.');
     }
   }, [location.search]);
 
@@ -127,34 +175,11 @@ export default function AuthPage() {
           return;
         }
 
-        const userRole = res.profile?.role || 'student';
-        const requested = queryRedirect || location.state?.from?.pathname;
-
-        // Authoritative redirection handling
-        if (requested && requested.startsWith('/admin')) {
-          if (userRole === 'admin') {
-            navigate(requested, { replace: true });
-          } else if (userRole === 'rj') {
-            setErrorMsg('Admin access is restricted.');
-            setTimeout(() => navigate('/rj', { replace: true }), 1000);
-          } else {
-            setErrorMsg('Admin access is restricted.');
-            setTimeout(() => navigate('/dashboard', { replace: true }), 1000);
-          }
-        } else if (requested && (requested.startsWith('/rj') || requested.startsWith('/live-studio'))) {
-          if (userRole === 'admin' || userRole === 'rj') {
-            navigate(requested, { replace: true });
-          } else {
-            setErrorMsg('RJ access is restricted to authorized CampusWave staff.');
-            setTimeout(() => navigate('/dashboard', { replace: true }), 1000);
-          }
-        } else if (requested && requested !== '/login' && requested !== '/auth') {
-          navigate(requested, { replace: true });
-        } else {
-          // Standard role landing destinations
-          if (userRole === 'admin') navigate('/admin', { replace: true });
-          else if (userRole === 'rj') navigate('/rj', { replace: true });
-          else navigate('/dashboard', { replace: true });
+        // Supabase confirms sign-in succeeded
+        if (res.session || res.user) {
+          setSuccessMsg('Login successful. Entering CampusWave...');
+          const destination = getDestination();
+          navigate(destination, { replace: true });
         }
       } catch (err) {
         setErrorMsg(err.message || 'Sign in encountered an error.');
@@ -193,10 +218,11 @@ export default function AuthPage() {
           return;
         }
 
-        const userRole = res.profile?.role || 'student';
-        if (userRole === 'admin') navigate('/admin', { replace: true });
-        else if (userRole === 'rj') navigate('/rj', { replace: true });
-        else navigate('/dashboard', { replace: true });
+        if (res.session || res.user) {
+          setSuccessMsg('Account created successfully. Entering CampusWave...');
+          const destination = getDestination();
+          navigate(destination, { replace: true });
+        }
       } catch (err) {
         setErrorMsg(err.message || 'Account registration failed.');
       } finally {
@@ -211,7 +237,12 @@ export default function AuthPage() {
     try {
       const { error } = await resendVerification(email);
       if (error) {
-        setErrorMsg(error.message || 'Failed to resend confirmation email.');
+        const raw = (error.message || '').toLowerCase();
+        if (raw.includes('rate limit')) {
+          setErrorMsg('Email rate limit exceeded by Supabase Auth. Please wait a few minutes before trying again.');
+        } else {
+          setErrorMsg(error.message || 'Failed to resend confirmation email.');
+        }
       } else {
         setSuccessMsg('Verification email resent! Please check your inbox.');
         setShowResendBtn(false);

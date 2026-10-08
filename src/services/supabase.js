@@ -30,6 +30,9 @@ function createFallbackClient() {
           signInWithPassword: async () => ({ data: null, error: new Error('Supabase URL/Key not configured in .env') }),
           signUp: async () => ({ data: null, error: new Error('Supabase URL/Key not configured in .env') }),
           signOut: async () => ({ error: null }),
+          resetPasswordForEmail: async () => ({ data: null, error: new Error('Supabase URL/Key not configured in .env') }),
+          updateUser: async () => ({ data: null, error: new Error('Supabase URL/Key not configured in .env') }),
+          resend: async () => ({ data: null, error: new Error('Supabase URL/Key not configured in .env') }),
           onAuthStateChange: (cb) => {
             cb('INITIAL_SESSION', null);
             return { data: { subscription: { unsubscribe: () => {} } } };
@@ -44,14 +47,26 @@ function createFallbackClient() {
             update: () => chain,
             delete: () => chain,
             eq: () => chain,
+            neq: () => chain,
+            in: () => chain,
             order: () => chain,
             limit: () => chain,
+            range: () => chain,
             single: async () => ({ data: null, error: null }),
             maybeSingle: async () => ({ data: null, error: null }),
-            then: (resolve) => resolve({ data: [], error: null })
+            then: (resolve) => resolve({ data: [], error: null, count: 0 })
           };
           return chain;
         };
+      }
+      if (prop === 'rpc') {
+        return async () => ({ data: null, error: null });
+      }
+      if (prop === 'channel') {
+        return () => ({
+          on: () => ({ on: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }), subscribe: () => ({ unsubscribe: () => {} }) }),
+          subscribe: () => ({ unsubscribe: () => {} })
+        });
       }
       return target[prop] || (() => ({ data: null, error: null }));
     }
@@ -59,12 +74,23 @@ function createFallbackClient() {
   return new Proxy({}, handler);
 }
 
-export const supabase = isSupabaseConfigured
-  ? createClient(formatSupabaseUrl(supabaseUrl), supabaseAnonKey, {
+function initSupabase() {
+  if (!isSupabaseConfigured) {
+    return createFallbackClient();
+  }
+  try {
+    return createClient(formatSupabaseUrl(supabaseUrl), supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
       }
-    })
-  : createFallbackClient();
+    });
+  } catch (err) {
+    console.warn('Failed to initialize Supabase client, falling back to mock:', err);
+    return createFallbackClient();
+  }
+}
+
+export const supabase = initSupabase();
+

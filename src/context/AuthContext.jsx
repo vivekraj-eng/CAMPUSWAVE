@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authService } from '../services/auth-service';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 
@@ -47,6 +47,9 @@ export function AuthProvider({ children }) {
       return;
     }
 
+    // Resolve initial session immediately from persistent storage
+    refreshSession();
+
     // Set up centralized Supabase Auth State Change Listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       if (!isMountedRef.current) return;
@@ -56,6 +59,9 @@ export function AuthProvider({ children }) {
           if (newSession?.user) {
             setSession(newSession);
             setUser(newSession.user);
+            try {
+              await supabase.rpc('sync_authorized_staff_role');
+            } catch (err) {}
             const p = await loadUserProfile(newSession.user.id);
             if (isMountedRef.current) setProfile(p);
           } else {
