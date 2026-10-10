@@ -16509,6 +16509,48 @@ var proto3 = makeProtoRuntime(
 );
 
 // node_modules/livekit-server-sdk/node_modules/@livekit/protocol/dist/index.mjs
+var AudioCodec = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.AudioCodec",
+  [
+    { no: 0, name: "DEFAULT_AC" },
+    { no: 1, name: "OPUS" },
+    { no: 2, name: "AAC" },
+    { no: 3, name: "AC_MP3" }
+  ]
+);
+var VideoCodec = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.VideoCodec",
+  [
+    { no: 0, name: "DEFAULT_VC" },
+    { no: 1, name: "H264_BASELINE" },
+    { no: 2, name: "H264_MAIN" },
+    { no: 3, name: "H264_HIGH" },
+    { no: 4, name: "VP8" }
+  ]
+);
+var ImageCodec = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.ImageCodec",
+  [
+    { no: 0, name: "IC_DEFAULT" },
+    { no: 1, name: "IC_JPEG" }
+  ]
+);
+var BackupCodecPolicy = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.BackupCodecPolicy",
+  [
+    { no: 0, name: "PREFER_REGRESSION" },
+    { no: 1, name: "SIMULCAST" },
+    { no: 2, name: "REGRESSION" }
+  ]
+);
+var TrackType = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.TrackType",
+  [
+    { no: 0, name: "AUDIO" },
+    { no: 1, name: "VIDEO" },
+    { no: 2, name: "DATA" }
+  ]
+);
 var TrackSource = /* @__PURE__ */ proto3.makeEnum(
   "livekit.TrackSource",
   [
@@ -16517,6 +16559,1673 @@ var TrackSource = /* @__PURE__ */ proto3.makeEnum(
     { no: 2, name: "MICROPHONE" },
     { no: 3, name: "SCREEN_SHARE" },
     { no: 4, name: "SCREEN_SHARE_AUDIO" }
+  ]
+);
+var VideoQuality = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.VideoQuality",
+  [
+    { no: 0, name: "LOW" },
+    { no: 1, name: "MEDIUM" },
+    { no: 2, name: "HIGH" },
+    { no: 3, name: "OFF" }
+  ]
+);
+var DisconnectReason = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.DisconnectReason",
+  [
+    { no: 0, name: "UNKNOWN_REASON" },
+    { no: 1, name: "CLIENT_INITIATED" },
+    { no: 2, name: "DUPLICATE_IDENTITY" },
+    { no: 3, name: "SERVER_SHUTDOWN" },
+    { no: 4, name: "PARTICIPANT_REMOVED" },
+    { no: 5, name: "ROOM_DELETED" },
+    { no: 6, name: "STATE_MISMATCH" },
+    { no: 7, name: "JOIN_FAILURE" },
+    { no: 8, name: "MIGRATION" },
+    { no: 9, name: "SIGNAL_CLOSE" },
+    { no: 10, name: "ROOM_CLOSED" },
+    { no: 11, name: "USER_UNAVAILABLE" },
+    { no: 12, name: "USER_REJECTED" },
+    { no: 13, name: "SIP_TRUNK_FAILURE" },
+    { no: 14, name: "CONNECTION_TIMEOUT" },
+    { no: 15, name: "MEDIA_FAILURE" },
+    { no: 16, name: "AGENT_ERROR" }
+  ]
+);
+var AudioTrackFeature = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.AudioTrackFeature",
+  [
+    { no: 0, name: "TF_STEREO" },
+    { no: 1, name: "TF_NO_DTX" },
+    { no: 2, name: "TF_AUTO_GAIN_CONTROL" },
+    { no: 3, name: "TF_ECHO_CANCELLATION" },
+    { no: 4, name: "TF_NOISE_SUPPRESSION" },
+    { no: 5, name: "TF_ENHANCED_NOISE_CANCELLATION" },
+    { no: 6, name: "TF_PRECONNECT_BUFFER" }
+  ]
+);
+var PacketTrailerFeature = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.PacketTrailerFeature",
+  [
+    { no: 0, name: "PTF_USER_TIMESTAMP" },
+    { no: 1, name: "PTF_FRAME_ID" },
+    { no: 2, name: "PTF_USER_DATA" }
+  ]
+);
+var Room = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.Room",
+  () => [
+    {
+      no: 1,
+      name: "sid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "empty_timeout",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 14,
+      name: "departure_timeout",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 4,
+      name: "max_participants",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 5,
+      name: "creation_time",
+      kind: "scalar",
+      T: 3
+      /* ScalarType.INT64 */
+    },
+    {
+      no: 15,
+      name: "creation_time_ms",
+      kind: "scalar",
+      T: 3
+      /* ScalarType.INT64 */
+    },
+    {
+      no: 6,
+      name: "turn_password",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 7, name: "enabled_codecs", kind: "message", T: Codec, repeated: true },
+    {
+      no: 8,
+      name: "metadata",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 9,
+      name: "num_participants",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 11,
+      name: "num_publishers",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 10,
+      name: "active_recording",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 13, name: "version", kind: "message", T: TimedVersion }
+  ]
+);
+var Codec = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.Codec",
+  () => [
+    {
+      no: 1,
+      name: "mime",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "fmtp_line",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var ParticipantPermission = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ParticipantPermission",
+  () => [
+    {
+      no: 1,
+      name: "can_subscribe",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 2,
+      name: "can_publish",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 3,
+      name: "can_publish_data",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 9, name: "can_publish_sources", kind: "enum", T: proto3.getEnumType(TrackSource), repeated: true },
+    {
+      no: 7,
+      name: "hidden",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 8,
+      name: "recorder",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 10,
+      name: "can_update_metadata",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 11,
+      name: "agent",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 12,
+      name: "can_subscribe_metrics",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 13,
+      name: "can_manage_agent_session",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    }
+  ]
+);
+var ParticipantInfo = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ParticipantInfo",
+  () => [
+    {
+      no: 1,
+      name: "sid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "identity",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 3, name: "state", kind: "enum", T: proto3.getEnumType(ParticipantInfo_State) },
+    { no: 4, name: "tracks", kind: "message", T: TrackInfo, repeated: true },
+    {
+      no: 5,
+      name: "metadata",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 6,
+      name: "joined_at",
+      kind: "scalar",
+      T: 3
+      /* ScalarType.INT64 */
+    },
+    {
+      no: 17,
+      name: "joined_at_ms",
+      kind: "scalar",
+      T: 3
+      /* ScalarType.INT64 */
+    },
+    {
+      no: 9,
+      name: "name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 10,
+      name: "version",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    { no: 11, name: "permission", kind: "message", T: ParticipantPermission },
+    {
+      no: 12,
+      name: "region",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 13,
+      name: "is_publisher",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 14, name: "kind", kind: "enum", T: proto3.getEnumType(ParticipantInfo_Kind) },
+    { no: 15, name: "attributes", kind: "map", K: 9, V: {
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    } },
+    { no: 16, name: "disconnect_reason", kind: "enum", T: proto3.getEnumType(DisconnectReason) },
+    { no: 18, name: "kind_details", kind: "enum", T: proto3.getEnumType(ParticipantInfo_KindDetail), repeated: true },
+    { no: 19, name: "data_tracks", kind: "message", T: DataTrackInfo, repeated: true },
+    {
+      no: 20,
+      name: "client_protocol",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    { no: 21, name: "capabilities", kind: "enum", T: proto3.getEnumType(ClientInfo_Capability), repeated: true }
+  ]
+);
+var ParticipantInfo_State = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.ParticipantInfo.State",
+  [
+    { no: 0, name: "JOINING" },
+    { no: 1, name: "JOINED" },
+    { no: 2, name: "ACTIVE" },
+    { no: 3, name: "DISCONNECTED" }
+  ]
+);
+var ParticipantInfo_Kind = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.ParticipantInfo.Kind",
+  [
+    { no: 0, name: "STANDARD" },
+    { no: 1, name: "INGRESS" },
+    { no: 2, name: "EGRESS" },
+    { no: 3, name: "SIP" },
+    { no: 4, name: "AGENT" },
+    { no: 7, name: "CONNECTOR" },
+    { no: 8, name: "BRIDGE" }
+  ]
+);
+var ParticipantInfo_KindDetail = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.ParticipantInfo.KindDetail",
+  [
+    { no: 0, name: "CLOUD_AGENT" },
+    { no: 1, name: "FORWARDED" },
+    { no: 2, name: "CONNECTOR_WHATSAPP" },
+    { no: 3, name: "CONNECTOR_TWILIO" },
+    { no: 4, name: "BRIDGE_RTSP" },
+    { no: 5, name: "SIMULATION" }
+  ]
+);
+var Encryption_Type = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.Encryption.Type",
+  [
+    { no: 0, name: "NONE" },
+    { no: 1, name: "GCM" },
+    { no: 2, name: "CUSTOM" }
+  ]
+);
+var SimulcastCodecInfo = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.SimulcastCodecInfo",
+  () => [
+    {
+      no: 1,
+      name: "mime_type",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "mid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "cid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 4, name: "layers", kind: "message", T: VideoLayer, repeated: true },
+    { no: 5, name: "video_layer_mode", kind: "enum", T: proto3.getEnumType(VideoLayer_Mode) },
+    {
+      no: 6,
+      name: "sdp_cid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var TrackInfo = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.TrackInfo",
+  () => [
+    {
+      no: 1,
+      name: "sid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 2, name: "type", kind: "enum", T: proto3.getEnumType(TrackType) },
+    {
+      no: 3,
+      name: "name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 4,
+      name: "muted",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 5,
+      name: "width",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 6,
+      name: "height",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 7,
+      name: "simulcast",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 8,
+      name: "disable_dtx",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 9, name: "source", kind: "enum", T: proto3.getEnumType(TrackSource) },
+    { no: 10, name: "layers", kind: "message", T: VideoLayer, repeated: true },
+    {
+      no: 11,
+      name: "mime_type",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 12,
+      name: "mid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 13, name: "codecs", kind: "message", T: SimulcastCodecInfo, repeated: true },
+    {
+      no: 14,
+      name: "stereo",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 15,
+      name: "disable_red",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 16, name: "encryption", kind: "enum", T: proto3.getEnumType(Encryption_Type) },
+    {
+      no: 17,
+      name: "stream",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 18, name: "version", kind: "message", T: TimedVersion },
+    { no: 19, name: "audio_features", kind: "enum", T: proto3.getEnumType(AudioTrackFeature), repeated: true },
+    { no: 20, name: "backup_codec_policy", kind: "enum", T: proto3.getEnumType(BackupCodecPolicy) },
+    { no: 21, name: "packet_trailer_features", kind: "enum", T: proto3.getEnumType(PacketTrailerFeature), repeated: true }
+  ]
+);
+var DataTrackInfo = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.DataTrackInfo",
+  () => [
+    {
+      no: 1,
+      name: "pub_handle",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 2,
+      name: "sid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 4, name: "encryption", kind: "enum", T: proto3.getEnumType(Encryption_Type) },
+    { no: 5, name: "frame_encoding", kind: "message", T: DataTrackFrameEncoding, opt: true },
+    { no: 6, name: "schema", kind: "message", T: DataTrackSchemaId, opt: true }
+  ]
+);
+var DataTrackFrameEncoding = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.DataTrackFrameEncoding",
+  () => [
+    { no: 1, name: "well_known", kind: "enum", T: proto3.getEnumType(DataTrackFrameEncoding_WellKnownFrameEncoding), oneof: "value" },
+    { no: 2, name: "custom", kind: "scalar", T: 9, oneof: "value" }
+  ]
+);
+var DataTrackFrameEncoding_WellKnownFrameEncoding = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.DataTrackFrameEncoding.WellKnownFrameEncoding",
+  [
+    { no: 0, name: "WELL_KNOWN_FRAME_ENCODING_UNSPECIFIED", localName: "UNSPECIFIED" },
+    { no: 1, name: "WELL_KNOWN_FRAME_ENCODING_ROS1", localName: "ROS1" },
+    { no: 2, name: "WELL_KNOWN_FRAME_ENCODING_CDR", localName: "CDR" },
+    { no: 3, name: "WELL_KNOWN_FRAME_ENCODING_PROTOBUF", localName: "PROTOBUF" },
+    { no: 4, name: "WELL_KNOWN_FRAME_ENCODING_FLATBUFFER", localName: "FLATBUFFER" },
+    { no: 5, name: "WELL_KNOWN_FRAME_ENCODING_CBOR", localName: "CBOR" },
+    { no: 6, name: "WELL_KNOWN_FRAME_ENCODING_MSGPACK", localName: "MSGPACK" },
+    { no: 7, name: "WELL_KNOWN_FRAME_ENCODING_JSON", localName: "JSON" }
+  ]
+);
+var DataTrackSchemaEncoding = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.DataTrackSchemaEncoding",
+  () => [
+    { no: 1, name: "well_known", kind: "enum", T: proto3.getEnumType(DataTrackSchemaEncoding_WellKnownSchemaEncoding), oneof: "value" },
+    { no: 2, name: "custom", kind: "scalar", T: 9, oneof: "value" }
+  ]
+);
+var DataTrackSchemaEncoding_WellKnownSchemaEncoding = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.DataTrackSchemaEncoding.WellKnownSchemaEncoding",
+  [
+    { no: 0, name: "WELL_KNOWN_SCHEMA_ENCODING_UNSPECIFIED", localName: "UNSPECIFIED" },
+    { no: 1, name: "WELL_KNOWN_SCHEMA_ENCODING_PROTOBUF", localName: "PROTOBUF" },
+    { no: 2, name: "WELL_KNOWN_SCHEMA_ENCODING_FLATBUFFER", localName: "FLATBUFFER" },
+    { no: 3, name: "WELL_KNOWN_SCHEMA_ENCODING_ROS1_MSG", localName: "ROS1_MSG" },
+    { no: 4, name: "WELL_KNOWN_SCHEMA_ENCODING_ROS2_MSG", localName: "ROS2_MSG" },
+    { no: 5, name: "WELL_KNOWN_SCHEMA_ENCODING_ROS2_IDL", localName: "ROS2_IDL" },
+    { no: 6, name: "WELL_KNOWN_SCHEMA_ENCODING_OMG_IDL", localName: "OMG_IDL" },
+    { no: 7, name: "WELL_KNOWN_SCHEMA_ENCODING_JSON_SCHEMA", localName: "JSON_SCHEMA" }
+  ]
+);
+var DataTrackSchemaId = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.DataTrackSchemaId",
+  () => [
+    {
+      no: 1,
+      name: "name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 2, name: "encoding", kind: "message", T: DataTrackSchemaEncoding }
+  ]
+);
+var VideoLayer = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.VideoLayer",
+  () => [
+    { no: 1, name: "quality", kind: "enum", T: proto3.getEnumType(VideoQuality) },
+    {
+      no: 2,
+      name: "width",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 3,
+      name: "height",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 4,
+      name: "bitrate",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 5,
+      name: "ssrc",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 6,
+      name: "spatial_layer",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 7,
+      name: "rid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 8,
+      name: "repair_ssrc",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    }
+  ]
+);
+var VideoLayer_Mode = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.VideoLayer.Mode",
+  [
+    { no: 0, name: "MODE_UNUSED" },
+    { no: 1, name: "ONE_SPATIAL_LAYER_PER_STREAM" },
+    { no: 2, name: "MULTIPLE_SPATIAL_LAYERS_PER_STREAM" },
+    { no: 3, name: "ONE_SPATIAL_LAYER_PER_STREAM_INCOMPLETE_RTCP_SR" }
+  ]
+);
+var DataPacket_Kind = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.DataPacket.Kind",
+  [
+    { no: 0, name: "RELIABLE" },
+    { no: 1, name: "LOSSY" }
+  ]
+);
+var ParticipantTracks = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ParticipantTracks",
+  () => [
+    {
+      no: 1,
+      name: "participant_sid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 2, name: "track_sids", kind: "scalar", T: 9, repeated: true }
+  ]
+);
+var ClientInfo_Capability = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.ClientInfo.Capability",
+  [
+    { no: 0, name: "CAP_UNUSED" },
+    { no: 1, name: "CAP_PACKET_TRAILER" },
+    { no: 2, name: "CAP_COMPRESSION_DEFLATE_RAW" }
+  ]
+);
+var TimedVersion = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.TimedVersion",
+  () => [
+    {
+      no: 1,
+      name: "unix_micro",
+      kind: "scalar",
+      T: 3
+      /* ScalarType.INT64 */
+    },
+    {
+      no: 2,
+      name: "ticks",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    }
+  ]
+);
+var FilterParams = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.FilterParams",
+  () => [
+    { no: 1, name: "include_events", kind: "scalar", T: 9, repeated: true },
+    { no: 2, name: "exclude_events", kind: "scalar", T: 9, repeated: true }
+  ]
+);
+var WebhookConfig = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.WebhookConfig",
+  () => [
+    {
+      no: 1,
+      name: "url",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "signing_key",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 3, name: "filter_params", kind: "message", T: FilterParams }
+  ]
+);
+var JobRestartPolicy = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.JobRestartPolicy",
+  [
+    { no: 0, name: "JRP_ON_FAILURE" },
+    { no: 1, name: "JRP_NEVER" }
+  ]
+);
+var RoomAgentDispatch = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.RoomAgentDispatch",
+  () => [
+    {
+      no: 1,
+      name: "agent_name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "metadata",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 3, name: "restart_policy", kind: "enum", T: proto3.getEnumType(JobRestartPolicy) },
+    {
+      no: 4,
+      name: "deployment",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 5, name: "attributes", kind: "map", K: 9, V: {
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    } }
+  ]
+);
+var EncodingOptionsPreset = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.EncodingOptionsPreset",
+  [
+    { no: 0, name: "H264_720P_30" },
+    { no: 1, name: "H264_720P_60" },
+    { no: 2, name: "H264_1080P_30" },
+    { no: 3, name: "H264_1080P_60" },
+    { no: 4, name: "PORTRAIT_H264_720P_30" },
+    { no: 5, name: "PORTRAIT_H264_720P_60" },
+    { no: 6, name: "PORTRAIT_H264_1080P_30" },
+    { no: 7, name: "PORTRAIT_H264_1080P_60" },
+    { no: 8, name: "PASSTHROUGH" }
+  ]
+);
+var EncodedFileType = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.EncodedFileType",
+  [
+    { no: 0, name: "DEFAULT_FILETYPE" },
+    { no: 1, name: "MP4" },
+    { no: 2, name: "OGG" },
+    { no: 3, name: "MP3" }
+  ]
+);
+var StreamProtocol = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.StreamProtocol",
+  [
+    { no: 0, name: "DEFAULT_PROTOCOL" },
+    { no: 1, name: "RTMP" },
+    { no: 2, name: "SRT" },
+    { no: 3, name: "WEBSOCKET" }
+  ]
+);
+var SegmentedFileProtocol = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.SegmentedFileProtocol",
+  [
+    { no: 0, name: "DEFAULT_SEGMENTED_FILE_PROTOCOL" },
+    { no: 1, name: "HLS_PROTOCOL" }
+  ]
+);
+var SegmentedFileSuffix = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.SegmentedFileSuffix",
+  [
+    { no: 0, name: "INDEX" },
+    { no: 1, name: "TIMESTAMP" }
+  ]
+);
+var ImageFileSuffix = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.ImageFileSuffix",
+  [
+    { no: 0, name: "IMAGE_SUFFIX_INDEX" },
+    { no: 1, name: "IMAGE_SUFFIX_TIMESTAMP" },
+    { no: 2, name: "IMAGE_SUFFIX_NONE_OVERWRITE" }
+  ]
+);
+var AudioMixing = /* @__PURE__ */ proto3.makeEnum(
+  "livekit.AudioMixing",
+  [
+    { no: 0, name: "DEFAULT_MIXING" },
+    { no: 1, name: "DUAL_CHANNEL_AGENT" },
+    { no: 2, name: "DUAL_CHANNEL_ALTERNATE" }
+  ]
+);
+var EncodingOptions = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.EncodingOptions",
+  () => [
+    {
+      no: 1,
+      name: "width",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 2,
+      name: "height",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 3,
+      name: "depth",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 4,
+      name: "framerate",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    { no: 5, name: "audio_codec", kind: "enum", T: proto3.getEnumType(AudioCodec) },
+    {
+      no: 6,
+      name: "audio_bitrate",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 7,
+      name: "audio_frequency",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    { no: 8, name: "video_codec", kind: "enum", T: proto3.getEnumType(VideoCodec) },
+    {
+      no: 9,
+      name: "video_bitrate",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 10,
+      name: "key_frame_interval",
+      kind: "scalar",
+      T: 1
+      /* ScalarType.DOUBLE */
+    },
+    {
+      no: 11,
+      name: "audio_quality",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 12,
+      name: "video_quality",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    }
+  ]
+);
+var StreamOutput = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.StreamOutput",
+  () => [
+    { no: 1, name: "protocol", kind: "enum", T: proto3.getEnumType(StreamProtocol) },
+    { no: 2, name: "urls", kind: "scalar", T: 9, repeated: true }
+  ]
+);
+var SegmentedFileOutput = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.SegmentedFileOutput",
+  () => [
+    { no: 1, name: "protocol", kind: "enum", T: proto3.getEnumType(SegmentedFileProtocol) },
+    {
+      no: 2,
+      name: "filename_prefix",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "playlist_name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 11,
+      name: "live_playlist_name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 4,
+      name: "segment_duration",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    { no: 10, name: "filename_suffix", kind: "enum", T: proto3.getEnumType(SegmentedFileSuffix) },
+    {
+      no: 8,
+      name: "disable_manifest",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 5, name: "s3", kind: "message", T: S3Upload, oneof: "output" },
+    { no: 6, name: "gcp", kind: "message", T: GCPUpload, oneof: "output" },
+    { no: 7, name: "azure", kind: "message", T: AzureBlobUpload, oneof: "output" },
+    { no: 9, name: "aliOSS", kind: "message", T: AliOSSUpload, oneof: "output" }
+  ]
+);
+var ImageOutput = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ImageOutput",
+  () => [
+    {
+      no: 1,
+      name: "capture_interval",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 2,
+      name: "width",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 3,
+      name: "height",
+      kind: "scalar",
+      T: 5
+      /* ScalarType.INT32 */
+    },
+    {
+      no: 4,
+      name: "filename_prefix",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 5, name: "filename_suffix", kind: "enum", T: proto3.getEnumType(ImageFileSuffix) },
+    { no: 6, name: "image_codec", kind: "enum", T: proto3.getEnumType(ImageCodec) },
+    {
+      no: 7,
+      name: "disable_manifest",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 8, name: "s3", kind: "message", T: S3Upload, oneof: "output" },
+    { no: 9, name: "gcp", kind: "message", T: GCPUpload, oneof: "output" },
+    { no: 10, name: "azure", kind: "message", T: AzureBlobUpload, oneof: "output" },
+    { no: 11, name: "aliOSS", kind: "message", T: AliOSSUpload, oneof: "output" }
+  ]
+);
+var S3Upload = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.S3Upload",
+  () => [
+    {
+      no: 1,
+      name: "access_key",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "secret",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 11,
+      name: "session_token",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 12,
+      name: "assume_role_arn",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 13,
+      name: "assume_role_external_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "region",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 4,
+      name: "endpoint",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 5,
+      name: "bucket",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 6,
+      name: "force_path_style",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 7, name: "metadata", kind: "map", K: 9, V: {
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    } },
+    {
+      no: 8,
+      name: "tagging",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 9,
+      name: "content_disposition",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 10, name: "proxy", kind: "message", T: ProxyConfig }
+  ]
+);
+var GCPUpload = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.GCPUpload",
+  () => [
+    {
+      no: 1,
+      name: "credentials",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "bucket",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 3, name: "proxy", kind: "message", T: ProxyConfig }
+  ]
+);
+var AzureBlobUpload = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.AzureBlobUpload",
+  () => [
+    {
+      no: 1,
+      name: "account_name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "account_key",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "container_name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var AliOSSUpload = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.AliOSSUpload",
+  () => [
+    {
+      no: 1,
+      name: "access_key",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "secret",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "region",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 4,
+      name: "endpoint",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 5,
+      name: "bucket",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var ProxyConfig = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ProxyConfig",
+  () => [
+    {
+      no: 1,
+      name: "url",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "username",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "password",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var AutoParticipantEgress = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.AutoParticipantEgress",
+  () => [
+    { no: 1, name: "preset", kind: "enum", T: proto3.getEnumType(EncodingOptionsPreset), oneof: "options" },
+    { no: 2, name: "advanced", kind: "message", T: EncodingOptions, oneof: "options" },
+    { no: 3, name: "file_outputs", kind: "message", T: EncodedFileOutput, repeated: true },
+    { no: 4, name: "segment_outputs", kind: "message", T: SegmentedFileOutput, repeated: true }
+  ]
+);
+var AutoTrackEgress = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.AutoTrackEgress",
+  () => [
+    {
+      no: 1,
+      name: "filepath",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 5,
+      name: "disable_manifest",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 2, name: "s3", kind: "message", T: S3Upload, oneof: "output" },
+    { no: 3, name: "gcp", kind: "message", T: GCPUpload, oneof: "output" },
+    { no: 4, name: "azure", kind: "message", T: AzureBlobUpload, oneof: "output" },
+    { no: 6, name: "aliOSS", kind: "message", T: AliOSSUpload, oneof: "output" }
+  ]
+);
+var RoomCompositeEgressRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.RoomCompositeEgressRequest",
+  () => [
+    {
+      no: 1,
+      name: "room_name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "layout",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "audio_only",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 15, name: "audio_mixing", kind: "enum", T: proto3.getEnumType(AudioMixing) },
+    {
+      no: 4,
+      name: "video_only",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 5,
+      name: "custom_base_url",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 6, name: "file", kind: "message", T: EncodedFileOutput, oneof: "output" },
+    { no: 7, name: "stream", kind: "message", T: StreamOutput, oneof: "output" },
+    { no: 10, name: "segments", kind: "message", T: SegmentedFileOutput, oneof: "output" },
+    { no: 8, name: "preset", kind: "enum", T: proto3.getEnumType(EncodingOptionsPreset), oneof: "options" },
+    { no: 9, name: "advanced", kind: "message", T: EncodingOptions, oneof: "options" },
+    { no: 11, name: "file_outputs", kind: "message", T: EncodedFileOutput, repeated: true },
+    { no: 12, name: "stream_outputs", kind: "message", T: StreamOutput, repeated: true },
+    { no: 13, name: "segment_outputs", kind: "message", T: SegmentedFileOutput, repeated: true },
+    { no: 14, name: "image_outputs", kind: "message", T: ImageOutput, repeated: true },
+    { no: 16, name: "webhooks", kind: "message", T: WebhookConfig, repeated: true }
+  ]
+);
+var EncodedFileOutput = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.EncodedFileOutput",
+  () => [
+    { no: 1, name: "file_type", kind: "enum", T: proto3.getEnumType(EncodedFileType) },
+    {
+      no: 2,
+      name: "filepath",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 6,
+      name: "disable_manifest",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 3, name: "s3", kind: "message", T: S3Upload, oneof: "output" },
+    { no: 4, name: "gcp", kind: "message", T: GCPUpload, oneof: "output" },
+    { no: 5, name: "azure", kind: "message", T: AzureBlobUpload, oneof: "output" },
+    { no: 7, name: "aliOSS", kind: "message", T: AliOSSUpload, oneof: "output" }
+  ]
+);
+var CreateRoomRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.CreateRoomRequest",
+  () => [
+    {
+      no: 1,
+      name: "name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 12,
+      name: "room_preset",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "empty_timeout",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 10,
+      name: "departure_timeout",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 3,
+      name: "max_participants",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 4,
+      name: "node_id",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 5,
+      name: "metadata",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 15, name: "tags", kind: "map", K: 9, V: {
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    } },
+    { no: 6, name: "egress", kind: "message", T: RoomEgress },
+    {
+      no: 7,
+      name: "min_playout_delay",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 8,
+      name: "max_playout_delay",
+      kind: "scalar",
+      T: 13
+      /* ScalarType.UINT32 */
+    },
+    {
+      no: 9,
+      name: "sync_streams",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    {
+      no: 13,
+      name: "replay_enabled",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 14, name: "agents", kind: "message", T: RoomAgentDispatch, repeated: true }
+  ]
+);
+var RoomEgress = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.RoomEgress",
+  () => [
+    { no: 1, name: "room", kind: "message", T: RoomCompositeEgressRequest },
+    { no: 3, name: "participant", kind: "message", T: AutoParticipantEgress },
+    { no: 2, name: "tracks", kind: "message", T: AutoTrackEgress }
+  ]
+);
+var ListRoomsRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ListRoomsRequest",
+  () => [
+    { no: 1, name: "names", kind: "scalar", T: 9, repeated: true }
+  ]
+);
+var ListRoomsResponse = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ListRoomsResponse",
+  () => [
+    { no: 1, name: "rooms", kind: "message", T: Room, repeated: true }
+  ]
+);
+var DeleteRoomRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.DeleteRoomRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var ListParticipantsRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ListParticipantsRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var ListParticipantsResponse = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ListParticipantsResponse",
+  () => [
+    { no: 1, name: "participants", kind: "message", T: ParticipantInfo, repeated: true }
+  ]
+);
+var RoomParticipantIdentity = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.RoomParticipantIdentity",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "identity",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "revoke_token_ts",
+      kind: "scalar",
+      T: 3
+      /* ScalarType.INT64 */
+    }
+  ]
+);
+var MuteRoomTrackRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.MuteRoomTrackRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "identity",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "track_sid",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 4,
+      name: "muted",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    }
+  ]
+);
+var MuteRoomTrackResponse = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.MuteRoomTrackResponse",
+  () => [
+    { no: 1, name: "track", kind: "message", T: TrackInfo }
+  ]
+);
+var UpdateParticipantRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.UpdateParticipantRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "identity",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "metadata",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 4, name: "permission", kind: "message", T: ParticipantPermission },
+    {
+      no: 5,
+      name: "name",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 6, name: "attributes", kind: "map", K: 9, V: {
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    } }
+  ]
+);
+var UpdateSubscriptionsRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.UpdateSubscriptionsRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "identity",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    { no: 3, name: "track_sids", kind: "scalar", T: 9, repeated: true },
+    {
+      no: 4,
+      name: "subscribe",
+      kind: "scalar",
+      T: 8
+      /* ScalarType.BOOL */
+    },
+    { no: 5, name: "participant_tracks", kind: "message", T: ParticipantTracks, repeated: true }
+  ]
+);
+var SendDataRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.SendDataRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "data",
+      kind: "scalar",
+      T: 12
+      /* ScalarType.BYTES */
+    },
+    { no: 3, name: "kind", kind: "enum", T: proto3.getEnumType(DataPacket_Kind) },
+    { no: 4, name: "destination_sids", kind: "scalar", T: 9, repeated: true },
+    { no: 6, name: "destination_identities", kind: "scalar", T: 9, repeated: true },
+    { no: 5, name: "topic", kind: "scalar", T: 9, opt: true },
+    {
+      no: 7,
+      name: "nonce",
+      kind: "scalar",
+      T: 12
+      /* ScalarType.BYTES */
+    }
+  ]
+);
+var UpdateRoomMetadataRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.UpdateRoomMetadataRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "metadata",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var ForwardParticipantRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.ForwardParticipantRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "identity",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "destination_room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
+  ]
+);
+var MoveParticipantRequest = /* @__PURE__ */ proto3.makeMessageType(
+  "livekit.MoveParticipantRequest",
+  () => [
+    {
+      no: 1,
+      name: "room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 2,
+      name: "identity",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    },
+    {
+      no: 3,
+      name: "destination_room",
+      kind: "scalar",
+      T: 9
+      /* ScalarType.STRING */
+    }
   ]
 );
 
@@ -17518,11 +19227,526 @@ var AccessToken = class {
   }
 };
 
+// node_modules/livekit-server-sdk/dist/ServiceBase.js
+var ServiceBase = class {
+  constructor(apiKeyOrOptions, secret, ttl) {
+    const options = typeof apiKeyOrOptions === "object" ? apiKeyOrOptions : { apiKey: apiKeyOrOptions, secret, ttl };
+    this.apiKey = options.apiKey;
+    this.secret = options.secret;
+    this.ttl = options.ttl || "10m";
+    this.token = options.token;
+  }
+  async authHeader(grant, sip) {
+    if (this.token) {
+      return { Authorization: `Bearer ${this.token}` };
+    }
+    const at = new AccessToken(this.apiKey, this.secret, { ttl: this.ttl });
+    if (grant) {
+      at.addGrant(grant);
+    }
+    if (sip) {
+      at.addSIPGrant(sip);
+    }
+    return {
+      Authorization: `Bearer ${await at.toJwt()}`
+    };
+  }
+};
+
+// node_modules/livekit-server-sdk/dist/crypto/uuid.js
+async function getRandomBytes(size = 16) {
+  var _a;
+  if (!((_a = globalThis.crypto) == null ? void 0 : _a.getRandomValues)) {
+    throw new Error("Web Crypto API is required (globalThis.crypto.getRandomValues)");
+  }
+  return crypto.getRandomValues(new Uint8Array(size));
+}
+async function randomUUID() {
+  var _a;
+  if (typeof ((_a = globalThis.crypto) == null ? void 0 : _a.randomUUID) === "function") {
+    return crypto.randomUUID();
+  }
+  const bytes = await getRandomBytes(16);
+  bytes[6] = bytes[6] & 15 | 64;
+  bytes[8] = bytes[8] & 63 | 128;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20)
+  ].join("-");
+}
+
+// node_modules/livekit-server-sdk/dist/failover.js
+var FAILOVER_MAX_ATTEMPTS = 3;
+var FAILOVER_BACKOFF_BASE_MS = 200;
+var MIN_FAILOVER_TIMEOUT_SECONDS = 5;
+function failoverAttempts(enabled, hostname, force = false, timeoutSeconds = 0) {
+  if (!enabled || !(force || isCloud(hostname))) {
+    return 1;
+  }
+  if (timeoutSeconds > 0 && timeoutSeconds < MIN_FAILOVER_TIMEOUT_SECONDS) {
+    return 1;
+  }
+  return FAILOVER_MAX_ATTEMPTS;
+}
+function isCloud(hostname) {
+  return hostname.endsWith(".livekit.cloud");
+}
+function toHttp(url) {
+  return url.startsWith("ws") ? `http${url.slice(2)}` : url;
+}
+function hostKey(url) {
+  return url.host.toLowerCase();
+}
+function pickNext(regionOrigins2, attempted) {
+  for (const origin of regionOrigins2) {
+    try {
+      if (!attempted.has(hostKey(new URL(origin)))) {
+        return origin;
+      }
+    } catch {
+    }
+  }
+  return void 0;
+}
+function sleep(ms) {
+  return ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve();
+}
+var regionCache = /* @__PURE__ */ new Map();
+var inflight = /* @__PURE__ */ new Map();
+async function regionOrigins(origin, headers) {
+  const key = hostKey(origin);
+  const cached = regionCache.get(key);
+  if (cached && Date.now() - cached.fetchedAt < cached.ttl) {
+    return cached.origins;
+  }
+  const existing = inflight.get(key);
+  if (existing) {
+    return existing;
+  }
+  const request = (async () => {
+    try {
+      const { origins, ttl } = await fetchRegions(origin, headers);
+      if (ttl > 0) {
+        regionCache.set(key, { origins, fetchedAt: Date.now(), ttl });
+      }
+      return origins;
+    } catch {
+      return (cached == null ? void 0 : cached.origins) ?? [];
+    } finally {
+      inflight.delete(key);
+    }
+  })();
+  inflight.set(key, request);
+  return request;
+}
+async function fetchRegions(origin, headers) {
+  const fetchHeaders = {};
+  for (const [k, v] of Object.entries(headers ?? {})) {
+    if (k.toLowerCase() === "content-type" || k.toLowerCase() === "content-length") continue;
+    fetchHeaders[k] = v;
+  }
+  const response = await fetch(new URL("/settings/regions", origin.origin), {
+    method: "GET",
+    headers: fetchHeaders,
+    // Short timeout so a slow/unreachable discovery endpoint doesn't stall the
+    // failover path.
+    signal: AbortSignal.timeout(2e3)
+  });
+  if (!response.ok) {
+    throw new Error(`region discovery failed: ${response.status}`);
+  }
+  const ttl = parseMaxAge(response.headers.get("cache-control"));
+  const body = await response.json();
+  const origins = (body.regions ?? []).filter((r) => !!r.url).map((r) => new URL(toHttp(r.url)).origin);
+  return { origins, ttl };
+}
+function parseMaxAge(cacheControl) {
+  if (!cacheControl) return 0;
+  for (const directive of cacheControl.split(",")) {
+    const trimmed = directive.trim().toLowerCase();
+    if (trimmed.startsWith("max-age=")) {
+      const secs = parseInt(trimmed.slice("max-age=".length), 10);
+      return Number.isFinite(secs) && secs > 0 ? secs * 1e3 : 0;
+    }
+  }
+  return 0;
+}
+
 // node_modules/livekit-server-sdk/dist/version.js
 var SDK_VERSION = "2.19.1";
 
 // node_modules/livekit-server-sdk/dist/TwirpRPC.js
 var USER_AGENT = `livekit-server-sdk-node/${SDK_VERSION}`;
+var REQUEST_ID_HEADER = "X-Livekit-Request-Id";
+var defaultPrefix = "/twirp";
+var defaultTimeoutSeconds = 10;
+var livekitPackage = "livekit";
+var ServerError = class extends Error {
+  constructor(name, message2, status, code, metadata) {
+    super(message2);
+    this.name = name;
+    this.status = status;
+    this.code = code;
+    this.metadata = metadata;
+  }
+};
+var TwirpError = ServerError;
+var TwirpRpc = class {
+  constructor(host, pkg, options) {
+    if (host.startsWith("ws")) {
+      host = host.replace("ws", "http");
+    }
+    this.host = host;
+    this.pkg = pkg;
+    this.requestTimeout = (options == null ? void 0 : options.requestTimeout) ?? defaultTimeoutSeconds;
+    this.prefix = (options == null ? void 0 : options.prefix) || defaultPrefix;
+    this.failover = (options == null ? void 0 : options.failover) ?? true;
+    this.failoverForce = (options == null ? void 0 : options.failoverForce) ?? false;
+    this.failoverBackoffMs = (options == null ? void 0 : options.failoverBackoffMs) ?? FAILOVER_BACKOFF_BASE_MS;
+  }
+  /**
+   * Issues a Twirp request, failing over to alternative regions on retryable
+   * errors. On any transport error or HTTP 5xx it discovers regions via
+   * /settings/regions and replays the request — body and headers intact —
+   * against the next untried region, with exponential backoff. A 4xx is
+   * returned immediately.
+   */
+  async request(service, method, data, headers, timeout = this.requestTimeout) {
+    const path = `${this.prefix}/${this.pkg}.${service}/${method}`;
+    const body = JSON.stringify(data);
+    const requestHeaders = {
+      "Content-Type": "application/json;charset=UTF-8",
+      "User-Agent": USER_AGENT,
+      ...headers
+    };
+    requestHeaders[REQUEST_ID_HEADER] = await randomUUID();
+    const origin = new URL(this.host);
+    const maxAttempts = failoverAttempts(
+      this.failover,
+      origin.hostname,
+      this.failoverForce,
+      timeout
+    );
+    const attempted = /* @__PURE__ */ new Set([hostKey(origin)]);
+    let regions;
+    let current = this.host;
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const isLast = attempt + 1 >= maxAttempts;
+      const init = { method: "POST", headers: requestHeaders, body };
+      if (timeout) {
+        init.signal = AbortSignal.timeout(timeout * 1e3);
+      }
+      let response;
+      let transportError;
+      try {
+        response = await fetch(new URL(path, current), init);
+      } catch (e) {
+        transportError = e;
+      }
+      if (response == null ? void 0 : response.ok) {
+        return await response.json();
+      }
+      const retryable = transportError !== void 0 || !!response && response.status >= 500;
+      let next;
+      if (retryable && !isLast) {
+        if (!regions) {
+          regions = await regionOrigins(origin, headers);
+        }
+        next = pickNext(regions, attempted);
+      }
+      if (!retryable || next === void 0) {
+        if (response) {
+          throw await toTwirpError(response);
+        }
+        throw transportError;
+      }
+      const reason = response ? `status ${response.status}` : transportError;
+      console.warn(
+        `livekit API request to ${new URL(current).host} failed (${reason}), retrying with fallback url ${next}`
+      );
+      await sleep(this.failoverBackoffMs * 2 ** attempt);
+      attempted.add(hostKey(new URL(next)));
+      current = next;
+    }
+    throw new Error("failover loop exited without returning");
+  }
+};
+async function toTwirpError(response) {
+  const isJson = response.headers.get("content-type") === "application/json";
+  let errorMessage = "Unknown internal error";
+  let errorCode = void 0;
+  let metadata = void 0;
+  try {
+    if (isJson) {
+      const parsedError = await response.json();
+      if ("msg" in parsedError) {
+        errorMessage = parsedError.msg;
+      }
+      if ("code" in parsedError) {
+        errorCode = parsedError.code;
+      }
+      if ("meta" in parsedError) {
+        metadata = parsedError.meta;
+      }
+    } else {
+      errorMessage = await response.text();
+    }
+  } catch (e) {
+    console.debug(`Error when trying to parse error message, using defaults`, e);
+  }
+  return new TwirpError(response.statusText, errorMessage, response.status, errorCode, metadata);
+}
+
+// node_modules/livekit-server-sdk/dist/RoomServiceClient.js
+var svc = "RoomService";
+var RoomServiceClient = class extends ServiceBase {
+  /**
+   *
+   * @param host - hostname including protocol. i.e. 'https://<project>.livekit.cloud'
+   * @param apiKey - API Key, can be set in env var LIVEKIT_API_KEY
+   * @param secret - API Secret, can be set in env var LIVEKIT_API_SECRET
+   * @param options - client options
+   */
+  constructor(host, apiKey, secret, options) {
+    super({ apiKey, secret, token: options == null ? void 0 : options.token });
+    this.rpc = new TwirpRpc(host, livekitPackage, {
+      requestTimeout: options == null ? void 0 : options.requestTimeout,
+      failover: options == null ? void 0 : options.failover
+    });
+  }
+  /**
+   * Creates a new room. Explicit room creation is not required, since rooms will
+   * be automatically created when the first participant joins. This method can be
+   * used to customize room settings.
+   * @param options -
+   */
+  async createRoom(options) {
+    const data = await this.rpc.request(
+      svc,
+      "CreateRoom",
+      new CreateRoomRequest(options).toJson(),
+      await this.authHeader({ roomCreate: true })
+    );
+    return Room.fromJson(data, { ignoreUnknownFields: true });
+  }
+  /**
+   * List active rooms
+   * @param names - when undefined or empty, list all rooms.
+   *                otherwise returns rooms with matching names
+   * @returns
+   */
+  async listRooms(names) {
+    const data = await this.rpc.request(
+      svc,
+      "ListRooms",
+      new ListRoomsRequest({ names: names ?? [] }).toJson(),
+      await this.authHeader({ roomList: true })
+    );
+    const res = ListRoomsResponse.fromJson(data, { ignoreUnknownFields: true });
+    return res.rooms ?? [];
+  }
+  async deleteRoom(room) {
+    await this.rpc.request(
+      svc,
+      "DeleteRoom",
+      new DeleteRoomRequest({ room }).toJson(),
+      await this.authHeader({ roomCreate: true })
+    );
+  }
+  /**
+   * Update metadata of a room
+   * @param room - name of the room
+   * @param metadata - the new metadata for the room
+   */
+  async updateRoomMetadata(room, metadata) {
+    const data = await this.rpc.request(
+      svc,
+      "UpdateRoomMetadata",
+      new UpdateRoomMetadataRequest({ room, metadata }).toJson(),
+      await this.authHeader({ roomAdmin: true, room })
+    );
+    return Room.fromJson(data, { ignoreUnknownFields: true });
+  }
+  /**
+   * List participants in a room
+   * @param room - name of the room
+   */
+  async listParticipants(room) {
+    const data = await this.rpc.request(
+      svc,
+      "ListParticipants",
+      new ListParticipantsRequest({ room }).toJson(),
+      await this.authHeader({ roomAdmin: true, room })
+    );
+    const res = ListParticipantsResponse.fromJson(data, { ignoreUnknownFields: true });
+    return res.participants ?? [];
+  }
+  /**
+   * Get information on a specific participant, including the tracks that participant
+   * has published
+   * @param room - name of the room
+   * @param identity - identity of the participant to return
+   */
+  async getParticipant(room, identity) {
+    const data = await this.rpc.request(
+      svc,
+      "GetParticipant",
+      new RoomParticipantIdentity({ room, identity }).toJson(),
+      await this.authHeader({ roomAdmin: true, room })
+    );
+    return ParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+  /**
+   * Removes a participant in the room. This will disconnect the participant
+   * and will emit a Disconnected event for that participant.
+   * Even after being removed, the participant can still re-join the room.
+   * @param room -
+   * @param identity -
+   * @param options - removal options
+   */
+  async removeParticipant(room, identity, options) {
+    await this.rpc.request(
+      svc,
+      "RemoveParticipant",
+      new RoomParticipantIdentity({
+        room,
+        identity,
+        revokeTokenTs: options == null ? void 0 : options.revokeTokenTs
+      }).toJson(),
+      await this.authHeader({ roomAdmin: true, room })
+    );
+  }
+  /**
+   * Forwards a participant's track to another room. This will create a
+   * participant to join the destination room that has same information
+   * with the source participant except the kind to be `Forwarded`. All
+   * changes to the source participant will be reflected to the forwarded
+   * participant. When the source participant disconnects or the
+   * `RemoveParticipant` method is called in the destination room, the
+   * forwarding will be stopped.
+   * @param room -
+   * @param identity -
+   * @param destinationRoom - the room to forward the participant to
+   */
+  async forwardParticipant(room, identity, destinationRoom) {
+    await this.rpc.request(
+      svc,
+      "ForwardParticipant",
+      new ForwardParticipantRequest({ room, identity, destinationRoom }).toJson(),
+      await this.authHeader({ roomAdmin: true, room, destinationRoom })
+    );
+  }
+  /**
+   * Move a connected participant to a different room. Requires `roomAdmin` and `destinationRoom`.
+   * The participant will be removed from the current room and added to the destination room.
+   * From the other observers' perspective, the participant would've disconnected from the previous room and joined the new one.
+   * @param room -
+   * @param identity -
+   * @param destinationRoom - the room to move the participant to
+   */
+  async moveParticipant(room, identity, destinationRoom) {
+    await this.rpc.request(
+      svc,
+      "MoveParticipant",
+      new MoveParticipantRequest({ room, identity, destinationRoom }).toJson(),
+      await this.authHeader({ roomAdmin: true, room, destinationRoom })
+    );
+  }
+  /**
+   * Mutes a track that the participant has published.
+   * @param room -
+   * @param identity -
+   * @param trackSid - sid of the track to be muted
+   * @param muted - true to mute, false to unmute
+   */
+  async mutePublishedTrack(room, identity, trackSid, muted) {
+    const req = new MuteRoomTrackRequest({
+      room,
+      identity,
+      trackSid,
+      muted
+    }).toJson();
+    const data = await this.rpc.request(
+      svc,
+      "MutePublishedTrack",
+      req,
+      await this.authHeader({ roomAdmin: true, room })
+    );
+    const res = MuteRoomTrackResponse.fromJson(data, { ignoreUnknownFields: true });
+    return res.track;
+  }
+  async updateParticipant(room, identity, metadataOrOptions, maybePermission, maybeName) {
+    const hasOptions = typeof metadataOrOptions === "object";
+    const metadata = hasOptions ? metadataOrOptions == null ? void 0 : metadataOrOptions.metadata : metadataOrOptions;
+    const permission = hasOptions ? metadataOrOptions.permission : maybePermission;
+    const name = hasOptions ? metadataOrOptions.name : maybeName;
+    const attributes = hasOptions ? metadataOrOptions.attributes : {};
+    const req = new UpdateParticipantRequest({
+      room,
+      identity,
+      attributes,
+      metadata,
+      name
+    });
+    if (permission) {
+      req.permission = new ParticipantPermission(permission);
+    }
+    const data = await this.rpc.request(
+      svc,
+      "UpdateParticipant",
+      req.toJson(),
+      await this.authHeader({ roomAdmin: true, room })
+    );
+    return ParticipantInfo.fromJson(data, { ignoreUnknownFields: true });
+  }
+  /**
+   * Updates a participant's subscription to tracks
+   * @param room -
+   * @param identity -
+   * @param trackSids -
+   * @param subscribe - true to subscribe, false to unsubscribe
+   */
+  async updateSubscriptions(room, identity, trackSids, subscribe) {
+    const req = new UpdateSubscriptionsRequest({
+      room,
+      identity,
+      trackSids,
+      subscribe,
+      participantTracks: []
+    }).toJson();
+    await this.rpc.request(
+      svc,
+      "UpdateSubscriptions",
+      req,
+      await this.authHeader({ roomAdmin: true, room })
+    );
+  }
+  async sendData(room, data, kind, options = {}) {
+    const destinationSids = Array.isArray(options) ? options : options.destinationSids;
+    const topic = Array.isArray(options) ? void 0 : options.topic;
+    const req = new SendDataRequest({
+      room,
+      data,
+      kind,
+      destinationSids: destinationSids ?? [],
+      topic
+    });
+    if (!Array.isArray(options) && options.destinationIdentities) {
+      req.destinationIdentities = options.destinationIdentities;
+    }
+    req.nonce = await getRandomBytes(16);
+    await this.rpc.request(
+      svc,
+      "SendData",
+      req.toJson(),
+      await this.authHeader({ roomAdmin: true, room })
+    );
+  }
+};
 
 // node_modules/@supabase/supabase-js/dist/index.mjs
 var dist_exports = {};
@@ -25733,8 +27957,44 @@ async function handler(event) {
         body = {};
       }
     }
-    const action = body.action || "subscribe";
+    const action = body.action || (event.httpMethod === "GET" ? "status" : "subscribe");
     const roomName = "campuswave-live";
+    if (action === "status" || event.httpMethod === "GET") {
+      try {
+        const roomService = new RoomServiceClient(livekitUrl, apiKey, apiSecret);
+        const participants = await roomService.listParticipants(roomName);
+        const activeBroadcaster = participants.find(
+          (p) => p.identity && p.identity.startsWith("rj-") || p.permission && p.permission.canPublish || p.tracks && p.tracks.some((t) => t.type === 0 && !t.muted)
+          // type 0 is AUDIO
+        );
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            configured: true,
+            room: roomName,
+            isLive: Boolean(activeBroadcaster),
+            broadcaster: activeBroadcaster ? {
+              identity: activeBroadcaster.identity,
+              name: activeBroadcaster.name || "CampusWave RJ"
+            } : null,
+            participantCount: participants.length
+          })
+        };
+      } catch (err) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            configured: true,
+            room: roomName,
+            isLive: false,
+            broadcaster: null,
+            participantCount: 0
+          })
+        };
+      }
+    }
     if (action === "publish") {
       const authHeader = event.headers.authorization || event.headers.Authorization || "";
       const token = authHeader.replace(/^Bearer\s+/i, "").trim();

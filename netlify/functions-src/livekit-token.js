@@ -1,7 +1,7 @@
-import { AccessToken } from 'livekit-server-sdk';
+import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
 import { createClient } from '@supabase/supabase-js';
 
-// Server-side Netlify Serverless Function: LiveKit Room Token Generator
+// Server-side Netlify Serverless Function: LiveKit Room Token Generator & Broadcast Monitor
 // Securely verifies caller role before granting WebRTC publish permissions.
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://kijsftznepotlbyaybpu.supabase.co';
@@ -47,8 +47,50 @@ export async function handler(event) {
       }
     }
 
-    const action = body.action || 'subscribe'; // 'publish' | 'subscribe'
+    const action = body.action || (event.httpMethod === 'GET' ? 'status' : 'subscribe'); // 'publish' | 'subscribe' | 'status' | 'terminate'
     const roomName = 'campuswave-live';
+
+    // Broadcast Status Query: Check if an authorized RJ is actively broadcasting in room
+    if (action === 'status' || event.httpMethod === 'GET') {
+      try {
+        const roomService = new RoomServiceClient(livekitUrl, apiKey, apiSecret);
+        const participants = await roomService.listParticipants(roomName);
+        const activeBroadcaster = participants.find(p =>
+          (p.identity && p.identity.startsWith('rj-')) ||
+          (p.permission && p.permission.canPublish) ||
+          (p.tracks && p.tracks.some(t => t.type === 0 && !t.muted)) // type 0 is AUDIO
+        );
+
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            configured: true,
+            room: roomName,
+            isLive: Boolean(activeBroadcaster),
+            broadcaster: activeBroadcaster ? {
+              identity: activeBroadcaster.identity,
+              name: activeBroadcaster.name || 'CampusWave RJ'
+            } : null,
+            participantCount: participants.length
+          })
+        };
+      } catch (err) {
+        // If room does not exist yet on LiveKit, it's simply off air
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            configured: true,
+            room: roomName,
+            isLive: false,
+            broadcaster: null,
+            participantCount: 0
+          })
+        };
+      }
+    }
+
 
     // 2. Handle Broadcaster ('publish') Token Request
     if (action === 'publish') {

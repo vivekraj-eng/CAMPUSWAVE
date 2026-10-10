@@ -351,6 +351,14 @@
   color: #080C16;
 }
 
+.console-play-btn.waiting {
+  background: rgba(245, 158, 11, 0.2);
+  color: #FCD34D;
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 4px 22px rgba(245, 158, 11, 0.3);
+}
+
+
 .console-volume-block {
   display: flex;
   align-items: center;

@@ -34,9 +34,12 @@ class LiveAudioService {
     this.connectionStatus = 'standby';
     this.listenerCount = null;
 
-    // Listener states: 'idle' | 'connecting' | 'listening' | 'autoplay_blocked' | 'offline' | 'error'
+    // Listener states: 'idle' | 'connecting' | 'waiting_for_broadcaster' | 'listening' | 'autoplay_blocked' | 'offline' | 'error'
     this.listenerState = 'idle';
     this.listenerError = null;
+    this.isConnectingListener = false;
+    this.volume = 0.8;
+    this.isListenerMuted = false;
 
     this.listeners = new Set();
 
@@ -75,6 +78,9 @@ class LiveAudioService {
       listenerCount: this.listenerCount,
       listenerState: this.listenerState,
       listenerError: this.listenerError,
+      volume: this.volume,
+      isListenerMuted: this.isListenerMuted,
+      isConnectingListener: this.isConnectingListener,
       isLivePublishing: this.broadcasterState === 'live',
       isLiveListening: this.listenerState === 'listening'
     };
@@ -355,19 +361,48 @@ class LiveAudioService {
    * Connect listener to LiveKit Room and play live RJ audio
    */
   async startListening() {
-    if (this.subscriberRoom) {
-      await this.stopListening();
+    if (this.isConnectingListener) return;
+    if (this.subscriberRoom && (this.listenerState === 'listening' || this.listenerState === 'waiting_for_broadcaster')) {
+      return;
     }
 
+    this.isConnectingListener = true;
     this.listenerState = 'connecting';
     this.listenerError = null;
     this.notify();
 
+    // 1. Prime Audio Element and Web Audio Context synchronously in user gesture
     try {
-      // 1. Fetch Subscriber-only token
+      if (!this.audioElement) {
+        this.audioElement = new Audio();
+        this.audioElement.autoplay = true;
+        document.body.appendChild(this.audioElement);
+      }
+      this.audioElement.volume = this.volume !== undefined ? this.volume : 0.8;
+      this.audioElement.muted = Boolean(this.isListenerMuted);
+
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        if (!this.audioCtx) this.audioCtx = new AudioCtx();
+        if (this.audioCtx.state === 'suspended') {
+          this.audioCtx.resume().catch(() => {});
+        }
+      }
+      // Prime playback permission
+      this.audioElement.play().catch(() => {});
+    } catch (e) {
+      console.warn('Audio priming warning:', e);
+    }
+
+    try {
+      if (this.subscriberRoom) {
+        await this.stopListening();
+      }
+
+      // 2. Fetch Subscriber-only token
       const tokenData = await this.fetchLiveKitToken('subscribe');
 
-      // 2. Connect to LiveKit Room as subscriber
+      // 3. Connect to LiveKit Room as subscriber
       this.subscriberRoom = new Room({
         adaptiveStream: true,
         dynacast: true
@@ -383,29 +418,47 @@ class LiveAudioService {
         if (this.audioElement) {
           track.detach(this.audioElement);
         }
-        this.listenerState = 'idle';
-        this.notify();
+        this.subscribedTrack = null;
+        this.checkRemainingAudioTracks();
+      });
+
+      this.subscriberRoom.on(RoomEvent.ParticipantDisconnected, () => {
+        this.checkRemainingAudioTracks();
       });
 
       this.subscriberRoom.on(RoomEvent.Disconnected, () => {
-        this.listenerState = 'offline';
+        this.listenerState = 'idle';
+        this.subscribedTrack = null;
         this.notify();
       });
 
       await this.subscriberRoom.connect(tokenData.url, tokenData.token);
 
-      // Check if audio track is already published in room
-      this.subscriberRoom.remoteParticipants.forEach((participant) => {
-        participant.trackPublications.forEach((publication) => {
-          if (publication.track && publication.track.kind === Track.Kind.Audio) {
-            this.attachListenerAudio(publication.track);
+      // 4. Check if an audio track is already published
+      let foundAudio = false;
+      if (this.subscriberRoom.remoteParticipants) {
+        for (const participant of this.subscriberRoom.remoteParticipants.values()) {
+          for (const publication of participant.trackPublications.values()) {
+            if (publication.track && publication.track.kind === Track.Kind.Audio) {
+              this.attachListenerAudio(publication.track);
+              foundAudio = true;
+              break;
+            }
           }
-        });
-      });
+          if (foundAudio) break;
+        }
+      }
 
+      if (!foundAudio) {
+        this.listenerState = 'waiting_for_broadcaster';
+        this.notify();
+      }
+
+      this.isConnectingListener = false;
       return { success: true };
     } catch (err) {
       console.error('Failed to connect listener to LiveKit room:', err);
+      this.isConnectingListener = false;
       this.listenerState = 'error';
       this.listenerError = err.message || 'Live radio audio stream currently unavailable.';
       this.notify();
@@ -413,15 +466,42 @@ class LiveAudioService {
     }
   }
 
+  checkRemainingAudioTracks() {
+    if (!this.subscriberRoom) {
+      this.listenerState = 'idle';
+      this.notify();
+      return;
+    }
+    let found = false;
+    if (this.subscriberRoom.remoteParticipants) {
+      for (const p of this.subscriberRoom.remoteParticipants.values()) {
+        for (const pub of p.trackPublications.values()) {
+          if (pub.track && pub.track.kind === Track.Kind.Audio) {
+            this.attachListenerAudio(pub.track);
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+    }
+    if (!found) {
+      this.listenerState = 'waiting_for_broadcaster';
+      this.notify();
+    }
+  }
+
   attachListenerAudio(track) {
     this.subscribedTrack = track;
 
     if (!this.audioElement) {
-      this.audioElement = document.createElement('audio');
+      this.audioElement = new Audio();
       this.audioElement.autoplay = true;
       document.body.appendChild(this.audioElement);
     }
 
+    this.audioElement.volume = this.volume !== undefined ? this.volume : 0.8;
+    this.audioElement.muted = Boolean(this.isListenerMuted);
     track.attach(this.audioElement);
 
     // Setup Web Audio analyser on incoming track for real listener waveform
@@ -433,19 +513,20 @@ class LiveAudioService {
       playPromise
         .then(() => {
           this.listenerState = 'listening';
+          this.listenerError = null;
           this.notify();
         })
         .catch((err) => {
           if (err.name === 'NotAllowedError') {
             this.listenerState = 'autoplay_blocked';
-            this.notify();
           } else {
             this.listenerState = 'listening';
-            this.notify();
           }
+          this.notify();
         });
     } else {
       this.listenerState = 'listening';
+      this.listenerError = null;
       this.notify();
     }
   }
@@ -474,6 +555,29 @@ class LiveAudioService {
   }
 
   /**
+   * Set volume on live playback
+   */
+  setVolume(val) {
+    this.volume = Math.max(0, Math.min(1, val));
+    if (this.audioElement) {
+      this.audioElement.volume = this.volume;
+    }
+    this.notify();
+  }
+
+  /**
+   * Toggle mute on live playback
+   */
+  toggleMute() {
+    this.isListenerMuted = !this.isListenerMuted;
+    if (this.audioElement) {
+      this.audioElement.muted = this.isListenerMuted;
+    }
+    this.notify();
+    return this.isListenerMuted;
+  }
+
+  /**
    * Manually unlock audio on user gesture if autoplay was blocked
    */
   async unlockAudioPlayback() {
@@ -499,7 +603,7 @@ class LiveAudioService {
    */
   getWaveformData() {
     const analyser = this.rxAnalyser || this.micAnalyser;
-    if (!analyser) {
+    if (!analyser || (this.listenerState !== 'listening' && this.broadcasterState !== 'live')) {
       return new Array(24).fill(0.05);
     }
     try {
@@ -522,6 +626,7 @@ class LiveAudioService {
    * Disconnect listener
    */
   async stopListening() {
+    this.isConnectingListener = false;
     try {
       if (this.subscribedTrack && this.audioElement) {
         this.subscribedTrack.detach(this.audioElement);
@@ -530,6 +635,7 @@ class LiveAudioService {
       if (this.audioElement) {
         this.audioElement.pause();
         this.audioElement.src = '';
+        this.audioElement.srcObject = null;
       }
       if (this.subscriberRoom) {
         await this.subscriberRoom.disconnect();
@@ -546,3 +652,4 @@ class LiveAudioService {
 }
 
 export const liveAudioService = new LiveAudioService();
+

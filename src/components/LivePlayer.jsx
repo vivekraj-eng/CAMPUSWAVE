@@ -37,20 +37,21 @@ export default function LivePlayer() {
   } = useRadioPlayer();
 
   // If station is broadcasting via LiveKit, listen state dominates
-  const activeIsLive = isLiveKitLive || (state === 'live');
-  const activeIsPlaying = isLiveKitLive ? isLiveKitListening : isPlaying;
-  const activeIsConnecting = isLiveKitLive
-    ? (liveKitState === 'connecting')
-    : (state === 'connecting');
-  const activeIsOffline = !activeIsLive && !activeIsConnecting && (state === 'offline');
+  const activeIsListening = (liveKitState === 'listening');
+  const activeIsWaiting = (liveKitState === 'waiting_for_broadcaster');
+  const activeIsConnecting = (liveKitState === 'connecting');
+  const activeIsAutoplayBlocked = (liveKitState === 'autoplay_blocked');
+  const activeIsLive = isLiveKitLive || (state === 'live') || activeIsListening;
+  const activeIsPlaying = activeIsListening || (state === 'live' && isPlaying);
+  const activeIsOffline = !activeIsLive && !activeIsConnecting && !activeIsWaiting && !activeIsListening;
   const activeIsError = Boolean(liveKitError) || (state === 'error' && !isLiveKitLive);
 
   // Auto-disconnect LiveKit listener if broadcast concludes
   useEffect(() => {
-    if (!isLiveKitLive && isLiveKitListening) {
+    if (!isLiveKitLive && activeIsListening) {
       disconnectLiveKitListener();
     }
-  }, [isLiveKitLive, isLiveKitListening, disconnectLiveKitListener]);
+  }, [isLiveKitLive, activeIsListening, disconnectLiveKitListener]);
 
   // Real or active broadcast details
   const displayShow = dbMetadata?.current_show_title || (activeIsLive ? currentBroadcast?.title : 'Studio Standby');
@@ -59,18 +60,17 @@ export default function LivePlayer() {
   const displayArtist = dbMetadata?.current_artist || trackMetadata?.artist || null;
 
   const handlePlayToggle = () => {
-    if (isLiveKitLive) {
-      if (liveKitState === 'autoplay_blocked') {
-        unlockLiveAudio();
-      } else if (isLiveKitListening) {
-        disconnectLiveKitListener();
-      } else {
-        connectLiveKitListener();
-      }
+    if (activeIsAutoplayBlocked) {
+      unlockLiveAudio();
       return;
     }
-    togglePlay();
+    if (activeIsPlaying || activeIsWaiting) {
+      disconnectLiveKitListener();
+      return;
+    }
+    connectLiveKitListener();
   };
+
 
   return (
     <div className="broadcast-console-root">
@@ -106,15 +106,25 @@ export default function LivePlayer() {
             )}
 
             <div className="console-status-indicator">
-              {activeIsLive ? (
+              {activeIsListening ? (
                 <span className="live-status-pill">
                   <span className="pill-dot dot-live" />
-                  <span>{isLiveKitLive ? 'RJ ON AIR' : 'LIVE ON AIR'}</span>
+                  <span>LISTENING LIVE</span>
+                </span>
+              ) : activeIsWaiting ? (
+                <span className="connecting-status-pill" style={{ color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.4)' }}>
+                  <span className="pill-dot dot-connecting" style={{ background: '#f59e0b' }} />
+                  <span>WAITING FOR BROADCASTER</span>
                 </span>
               ) : activeIsConnecting ? (
                 <span className="connecting-status-pill">
                   <span className="pill-dot dot-connecting" />
                   <span>CONNECTING</span>
+                </span>
+              ) : activeIsLive ? (
+                <span className="live-status-pill">
+                  <span className="pill-dot dot-live" />
+                  <span>RJ ON AIR</span>
                 </span>
               ) : activeIsError ? (
                 <span className="error-status-pill">
@@ -124,7 +134,7 @@ export default function LivePlayer() {
               ) : (
                 <span className="offline-status-pill">
                   <span className="pill-dot dot-offline" />
-                  <span>OFFLINE</span>
+                  <span>OFF AIR</span>
                 </span>
               )}
             </div>
@@ -139,7 +149,7 @@ export default function LivePlayer() {
 
               <div className="console-identity-text">
                 <h2 className="console-station-name font-display">CampusWave Radio</h2>
-                {activeIsLive ? (
+                {activeIsListening ? (
                   <>
                     <div className="console-show-title font-display">
                       Show: {displayShow || 'Live Campus Broadcast'}
@@ -149,20 +159,38 @@ export default function LivePlayer() {
                         RJ: {displayRj}
                       </div>
                     )}
+                    <p className="console-state-msg font-mono" style={{ color: '#10b981' }}>
+                      Broadcasting live from the CampusWave RJ Studio.
+                    </p>
+                  </>
+                ) : activeIsWaiting ? (
+                  <>
+                    <div className="console-show-title font-display">Waiting for Broadcaster</div>
+                    <p className="console-state-msg font-mono" style={{ color: '#f59e0b' }}>
+                      Connected to live studio. Audio will begin automatically when RJ speaks.
+                    </p>
+                  </>
+                ) : activeIsLive ? (
+                  <>
+                    <div className="console-show-title font-display">
+                      Show: {displayShow || 'Live Campus Broadcast'}
+                    </div>
+                    {displayRj && (
+                      <div className="console-rj-name font-mono">
+                        RJ: {displayRj}
+                      </div>
+                    )}
+                    <p className="console-state-msg font-mono">
+                      Broadcasting live from the CampusWave RJ Studio. Click Listen Live to tune in.
+                    </p>
                   </>
                 ) : (
                   <>
                     <div className="console-show-title font-display">OFF AIR</div>
                     <p className="console-state-msg font-mono">
-                      CampusWave is currently not broadcasting.
+                      CampusWave is currently not broadcasting. Click Listen Live to stand by.
                     </p>
                   </>
-                )}
-
-                {activeIsLive && (
-                  <p className="console-state-msg font-mono">
-                    Broadcasting live from the CampusWave RJ Studio.
-                  </p>
                 )}
               </div>
             </div>
@@ -214,26 +242,31 @@ export default function LivePlayer() {
         <div className="console-controls-cluster">
           <button
             type="button"
-            className={`console-play-btn font-mono ${activeIsPlaying ? 'playing' : ''} ${isLiveKitLive && !activeIsPlaying ? 'pulsing-live' : ''}`}
+            className={`console-play-btn font-mono ${activeIsPlaying ? 'playing' : ''} ${activeIsWaiting ? 'waiting' : ''} ${(activeIsLive || activeIsPlaying) ? 'pulsing-live' : ''}`}
             onClick={handlePlayToggle}
-            disabled={!streamUrl && !isLiveKitLive && activeIsOffline}
-            aria-label={activeIsPlaying ? 'Pause CampusWave broadcast' : 'Play CampusWave broadcast'}
-            title={activeIsPlaying ? 'Pause CampusWave broadcast' : 'Play CampusWave broadcast'}
+            disabled={activeIsConnecting}
+            aria-label={activeIsPlaying ? 'Stop listening' : activeIsWaiting ? 'Stop waiting' : 'Listen Live'}
+            title={activeIsPlaying ? 'Stop listening' : activeIsWaiting ? 'Stop waiting' : 'Listen Live'}
           >
             {activeIsPlaying ? (
               <>
                 <Square size={20} fill="currentColor" />
-                <span>PAUSE</span>
+                <span>STOP LISTENING</span>
               </>
-            ) : isLiveKitLive ? (
+            ) : activeIsWaiting ? (
+              <>
+                <Square size={20} fill="currentColor" />
+                <span>STOP WAITING</span>
+              </>
+            ) : activeIsConnecting ? (
               <>
                 <Play size={20} fill="currentColor" />
-                <span>LISTEN LIVE</span>
+                <span>CONNECTING...</span>
               </>
             ) : (
               <>
                 <Play size={20} fill="currentColor" />
-                <span>PLAY</span>
+                <span>LISTEN LIVE</span>
               </>
             )}
           </button>

@@ -64,9 +64,35 @@ export function useRadioPlayer() {
     // Reliable 6-second heartbeat polling fallback in case WebSocket reconnects
     const pollInterval = setInterval(fetchNowPlaying, 6000);
 
+    // Also poll LiveKit room status directly
+    const pollLiveKitStatus = async () => {
+      try {
+        const res = await fetch('/.netlify/functions/livekit-token?action=status');
+        if (res.ok) {
+          const statusData = await res.json();
+          if (isMounted && statusData && statusData.configured) {
+            if (statusData.isLive) {
+              setLiveDbData((prev) => ({
+                ...(prev || {}),
+                is_live: true,
+                current_rj: statusData.broadcaster?.name || prev?.current_rj || 'CampusWave RJ',
+                listener_count: Math.max(statusData.participantCount || 1, prev?.listener_count || 1)
+              }));
+            }
+          }
+        }
+      } catch {
+        // Fallback silently
+      }
+    };
+
+    pollLiveKitStatus();
+    const lkInterval = setInterval(pollLiveKitStatus, 10000);
+
     return () => {
       isMounted = false;
       clearInterval(pollInterval);
+      clearInterval(lkInterval);
       if (channel && channel.unsubscribe) {
         try {
           channel.unsubscribe();
@@ -75,22 +101,22 @@ export function useRadioPlayer() {
     };
   }, []);
 
-  const isLiveKitLive = Boolean(liveDbData?.is_live);
+  const isLiveKitLive = Boolean(liveDbData?.is_live || liveAudioSnapshot.listenerState === 'listening');
   const isExternalLive = Boolean(!isLiveKitLive && snapshot.state === 'live');
 
   // Unified audio waveform data
   const getWaveformData = useCallback(() => {
-    if (isLiveKitLive) {
+    if (isLiveKitLive || liveAudioSnapshot.listenerState === 'listening') {
       return liveAudioService.getWaveformData();
     }
     return audioService.getWaveformData();
-  }, [isLiveKitLive]);
+  }, [isLiveKitLive, liveAudioSnapshot.listenerState]);
 
   return {
     ...snapshot,
     // Database live station overlay
     dbMetadata: liveDbData,
-    listenerCount: liveDbData?.listener_count ?? null,
+    listenerCount: liveDbData?.listener_count ?? liveAudioSnapshot.listenerCount ?? null,
     isLiveKitLive,
     liveKitState: liveAudioSnapshot.listenerState,
     liveKitError: liveAudioSnapshot.listenerError,
@@ -102,32 +128,30 @@ export function useRadioPlayer() {
     unlockLiveAudio: () => liveAudioService.unlockAudioPlayback(),
 
     // Standard stream controls
-    play: () => audioService.play(),
-    pause: () => audioService.pause(),
+    play: () => liveAudioService.startListening(),
+    pause: () => liveAudioService.stopListening(),
     togglePlay: () => {
-      if (isLiveKitLive) {
-        if (liveAudioSnapshot.isLiveListening) {
-          return liveAudioService.stopListening();
-        } else {
-          return liveAudioService.startListening();
-        }
+      if (liveAudioSnapshot.isLiveListening || liveAudioSnapshot.listenerState === 'waiting_for_broadcaster' || liveAudioSnapshot.listenerState === 'connecting') {
+        return liveAudioService.stopListening();
       }
-      return audioService.togglePlay();
+      return liveAudioService.startListening();
     },
-    playLive: () => {
-      if (isLiveKitLive) {
-        return liveAudioService.startListening();
-      }
-      return audioService.playLive();
-    },
+    playLive: () => liveAudioService.startListening(),
     playTrack: (track) => audioService.playTrack(track),
     togglePlayTrack: (track) => audioService.togglePlayTrack(track),
     seek: (sec) => audioService.seek(sec),
-    setVolume: (val) => audioService.setVolume(val),
-    toggleMute: () => audioService.toggleMute(),
+    setVolume: (val) => {
+      audioService.setVolume(val);
+      liveAudioService.setVolume(val);
+    },
+    toggleMute: () => {
+      audioService.toggleMute();
+      return liveAudioService.toggleMute();
+    },
     setSimulatorState: (state) => audioService.setSimulatorState(state),
     getWaveformData
   };
 }
 
 export const useAudioPlayer = useRadioPlayer;
+

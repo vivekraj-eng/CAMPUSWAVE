@@ -392,6 +392,15 @@ CREATE POLICY "Now playing readable" ON public.radio_now_playing
 CREATE POLICY "RJ/Admin update now playing" ON public.radio_now_playing
   FOR UPDATE USING (public.get_user_role() IN ('rj', 'admin'));
 
+CREATE POLICY "RJ/Admin insert now playing" ON public.radio_now_playing
+  FOR INSERT WITH CHECK (public.get_user_role() IN ('rj', 'admin'));
+
+-- Seed default initial row
+INSERT INTO public.radio_now_playing (id, is_live, current_show_title, current_rj)
+VALUES (1, false, 'Studio Standby', 'Campus Wave RJ')
+ON CONFLICT (id) DO NOTHING;
+
+
 -- Analytics: Anyone can insert events; Admin can read
 CREATE POLICY "Insert analytics events" ON public.analytics_events
   FOR INSERT WITH CHECK (true);
